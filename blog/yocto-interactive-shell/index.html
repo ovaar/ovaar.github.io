@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Yocto interactive shell - Ovaar - Blog
+</title>
+
+
+
+
+<link rel="stylesheet" href="/css/stylesheet.min.css">
+<link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Yocto interactive shell</h1>
+        <p>
+          <small>published on Mon, 20 Jul 2020</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+        <article class="content">
+          <h2 id="linux-yocto-interactive-shell">[Linux] yocto interactive shell&nbsp;<a class="anchor" href="#linux-yocto-interactive-shell"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>One of the reasons I have started this blog is to write about my best achievements. This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own <a href="https://github.com/topic-embedded-products/topic-platform">BSP</a> for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.</p>
+<p>Due to an increasing demand of production ready devices by our customer delivering actual software features became more and more challenging. Making the devices production ready was something we did in-house. Preparing each device required doing some manual actions and each device needed to be flashed using a Micro SD card. For example: the devices required a MAC address to be installed in the EEPROM and the yocto image to be flashed to NOR Flash using <a href="https://github.com/sbabic/swupdate">swupdate</a>.</p>
+<p>Back then I had an idea to speed up the process, it was to create a seperate yocto image that would bypass the getty login prompt to run an interactive script. This script could flash, erase flash, write to EEPROM, erase the EEPROM and would ask the user to which boot partition to write the swupdate package.</p>
+<p>Enough talk, lets dive in&hellip;.</p>
+<p>Bitbake allows for running code after succesfully building the root filesystem. The <code>ROOTFS_POSTPROCESS_COMMAND</code> allowed to edit the getty systemd service files using <a href="https://www.gnu.org/software/sed/manual/sed.html">sed</a>. Most importantly if you would open <code>console-getty.service</code> it runs <code>agetty</code> on the terminal in order to prompt for the user login. That not what I wanted, so I replaced it with <code>stty</code>.</p>
+<p><code>console-getty.service</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
+<span style="color:#a6e22e">Description</span><span style="color:#f92672">=</span><span style="color:#e6db74">Console Getty</span>
+<span style="color:#a6e22e">After</span><span style="color:#f92672">=</span><span style="color:#e6db74">systemd-user-sessions.service plymouth-quit-wait.service</span>
+<span style="color:#a6e22e">Before</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target</span>
+
+<span style="color:#66d9ef">[Service]</span>
+<span style="color:#a6e22e">ExecStart</span><span style="color:#f92672">=</span><span style="color:#e6db74">-/sbin/agetty --noclear --keep-baud console 115200,38400,9600 $TERM</span>
+<span style="color:#a6e22e">Type</span><span style="color:#f92672">=</span><span style="color:#e6db74">idle</span>
+<span style="color:#a6e22e">Restart</span><span style="color:#f92672">=</span><span style="color:#e6db74">always</span>
+<span style="color:#a6e22e">RestartSec</span><span style="color:#f92672">=</span><span style="color:#e6db74">0</span>
+<span style="color:#a6e22e">UtmpIdentifier</span><span style="color:#f92672">=</span><span style="color:#e6db74">cons</span>
+<span style="color:#a6e22e">TTYPath</span><span style="color:#f92672">=</span><span style="color:#e6db74">/dev/console</span>
+<span style="color:#a6e22e">TTYReset</span><span style="color:#f92672">=</span><span style="color:#e6db74">yes</span>
+<span style="color:#a6e22e">TTYVHangup</span><span style="color:#f92672">=</span><span style="color:#e6db74">yes</span>
+<span style="color:#a6e22e">KillMode</span><span style="color:#f92672">=</span><span style="color:#e6db74">process</span>
+<span style="color:#a6e22e">IgnoreSIGPIPE</span><span style="color:#f92672">=</span><span style="color:#e6db74">no</span>
+<span style="color:#a6e22e">SendSIGHUP</span><span style="color:#f92672">=</span><span style="color:#e6db74">yes</span>
+
+<span style="color:#66d9ef">[Install]</span>
+<span style="color:#a6e22e">WantedBy</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target</span>
+</code></pre></div><p><code>interactive.bb</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">GETTY_SYSTEMD_SERVICES <span style="color:#960050;background-color:#1e0010">?</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/serial-getty@.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/console-getty.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/getty@.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/container-getty@.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">&#34;</span>
+<span style="color:#75715e"># Replace agetty, which prompts for a user login</span>
+<span style="color:#75715e"># with stty. Than disable tty reset and hangup to</span>
+<span style="color:#75715e"># continue the user input stream.</span>
+disable_login_prompt () {
+    sed <span style="color:#f92672">-</span>i <span style="color:#f92672">-</span>e <span style="color:#e6db74">&#39;s/^\(ExecStart *=\(.*\)$\)/ExecStart=-\/bin\/stty -F \/dev\/ttyPS0 115200 cs8 sane /&#39;</span> <span style="color:#960050;background-color:#1e0010">$</span>{GETTY_SYSTEMD_SERVICES}
+    sed <span style="color:#f92672">-</span>i <span style="color:#f92672">-</span>e <span style="color:#e6db74">&#39;s/^\(TTYVHangup=yes$\)/TTYVHangup=no/&#39;</span> <span style="color:#960050;background-color:#1e0010">$</span>{GETTY_SYSTEMD_SERVICES}
+    sed <span style="color:#f92672">-</span>i <span style="color:#f92672">-</span>e <span style="color:#e6db74">&#39;s/^\(TTYReset=yes$\)/TTYReset=no/&#39;</span> <span style="color:#960050;background-color:#1e0010">$</span>{GETTY_SYSTEMD_SERVICES}
+}
+
+ROOTFS_POSTPROCESS_COMMAND <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;disable_login_prompt;&#34;</span>
+</code></pre></div><p>Next create a systemd service which runs after getty has started which to execute the interactive script.</p>
+<p><code>interactive.service</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
+<span style="color:#a6e22e">Description</span><span style="color:#f92672">=</span><span style="color:#e6db74">Interactive installation script that runs at startup.</span>
+<span style="color:#a6e22e">After</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target multi-user.target</span>
+
+<span style="color:#66d9ef">[Service]</span>
+<span style="color:#a6e22e">Type</span><span style="color:#f92672">=</span><span style="color:#e6db74">oneshot</span>
+<span style="color:#a6e22e">RemainAfterExit</span><span style="color:#f92672">=</span><span style="color:#e6db74">yes</span>
+<span style="color:#a6e22e">ExecStart</span><span style="color:#f92672">=</span><span style="color:#e6db74">/home/root/run-interactive-script</span>
+<span style="color:#a6e22e">StandardInput</span><span style="color:#f92672">=</span><span style="color:#e6db74">tty-force</span>
+<span style="color:#a6e22e">StandardOutput</span><span style="color:#f92672">=</span><span style="color:#e6db74">inherit</span>
+<span style="color:#a6e22e">StandardError</span><span style="color:#f92672">=</span><span style="color:#e6db74">inherit</span>
+
+<span style="color:#66d9ef">[Install]</span>
+<span style="color:#a6e22e">WantedBy</span><span style="color:#f92672">=</span><span style="color:#e6db74">multi-user.target</span>
+</code></pre></div><p>Now you can boot your system without an user login promp but still access all features of your BSP running Linux.</p>
+
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

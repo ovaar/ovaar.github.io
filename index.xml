@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ovaar - Blog</title>
+    <link>https://ovaar.github.io/</link>
+    <description>Recent content on Ovaar - Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Mon, 20 Jul 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://ovaar.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Yocto interactive shell</title>
+      <link>https://ovaar.github.io/blog/yocto-interactive-shell/</link>
+      <pubDate>Mon, 20 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/yocto-interactive-shell/</guid>
+      <description>&lt;h2 id=&#34;linux-yocto-interactive-shell&#34;&gt;[Linux] yocto interactive shell&lt;/h2&gt;
+&lt;p&gt;One of the reasons I have started this blog is to write about my best achievements. This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own &lt;a href=&#34;https://github.com/topic-embedded-products/topic-platform&#34;&gt;BSP&lt;/a&gt; for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.&lt;/p&gt;
+&lt;p&gt;Due to an increasing demand of production ready devices by our customer delivering actual software features became more and more challenging. Making the devices production ready was something we did in-house. Preparing each device required doing some manual actions and each device needed to be flashed using a Micro SD card. For example: the devices required a MAC address to be installed in the EEPROM and the yocto image to be flashed to NOR Flash using &lt;a href=&#34;https://github.com/sbabic/swupdate&#34;&gt;swupdate&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Back then I had an idea to speed up the process, it was to create a seperate yocto image that would bypass the getty login prompt to run an interactive script. This script could flash, erase flash, write to EEPROM, erase the EEPROM and would ask the user to which boot partition to write the swupdate package.&lt;/p&gt;
+&lt;p&gt;Enough talk, lets dive in&amp;hellip;.&lt;/p&gt;
+&lt;p&gt;Bitbake allows for running code after succesfully building the root filesystem. The &lt;code&gt;ROOTFS_POSTPROCESS_COMMAND&lt;/code&gt; allowed to edit the getty systemd service files using &lt;a href=&#34;https://www.gnu.org/software/sed/manual/sed.html&#34;&gt;sed&lt;/a&gt;. Most importantly if you would open &lt;code&gt;console-getty.service&lt;/code&gt; it runs &lt;code&gt;agetty&lt;/code&gt; on the terminal in order to prompt for the user login. That not what I wanted, so I replaced it with &lt;code&gt;stty&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;console-getty.service&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[Unit]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Description&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Console Getty&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;After&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;systemd-user-sessions.service plymouth-quit-wait.service&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Before&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;getty.target&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[Service]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;ExecStart&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;-/sbin/agetty --noclear --keep-baud console 115200,38400,9600 $TERM&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Type&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;idle&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Restart&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;always&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RestartSec&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;UtmpIdentifier&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;cons&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;TTYPath&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/dev/console&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;TTYReset&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;yes&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;TTYVHangup&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;yes&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;KillMode&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;process&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;IgnoreSIGPIPE&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;no&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;SendSIGHUP&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;yes&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[Install]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;WantedBy&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;getty.target&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;code&gt;interactive.bb&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;GETTY_SYSTEMD_SERVICES &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;?&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    ${IMAGE_ROOTFS}${systemd_system_unitdir}/serial-getty@.service &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    ${IMAGE_ROOTFS}${systemd_system_unitdir}/console-getty.service &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    ${IMAGE_ROOTFS}${systemd_system_unitdir}/getty@.service &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;    ${IMAGE_ROOTFS}${systemd_system_unitdir}/container-getty@.service &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# Replace agetty, which prompts for a user login&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# with stty. Than disable tty reset and hangup to&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# continue the user input stream.&lt;/span&gt;
+disable_login_prompt () {
+    sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;s/^\(ExecStart *=\(.*\)$\)/ExecStart=-\/bin\/stty -F \/dev\/ttyPS0 115200 cs8 sane /&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;{GETTY_SYSTEMD_SERVICES}
+    sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;s/^\(TTYVHangup=yes$\)/TTYVHangup=no/&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;{GETTY_SYSTEMD_SERVICES}
+    sed &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;e &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;s/^\(TTYReset=yes$\)/TTYReset=no/&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#960050;background-color:#1e0010&#34;&gt;$&lt;/span&gt;{GETTY_SYSTEMD_SERVICES}
+}
+
+ROOTFS_POSTPROCESS_COMMAND &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;disable_login_prompt;&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Next create a systemd service which runs after getty has started which to execute the interactive script.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;interactive.service&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-ini&#34; data-lang=&#34;ini&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;[Unit]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Description&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Interactive installation script that runs at startup.&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;After&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;getty.target multi-user.target&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[Service]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;Type&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;oneshot&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;RemainAfterExit&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;yes&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;ExecStart&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/home/root/run-interactive-script&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;StandardInput&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;tty-force&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;StandardOutput&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;inherit&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;StandardError&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;inherit&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;[Install]&lt;/span&gt;
+&lt;span style=&#34;color:#a6e22e&#34;&gt;WantedBy&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;multi-user.target&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now you can boot your system without an user login promp but still access all features of your BSP running Linux.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>First Post</title>
+      <link>https://ovaar.github.io/blog/first-post/</link>
+      <pubDate>Fri, 17 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/first-post/</guid>
+      <description>&lt;h2 id=&#34;very-first-blog-post&#34;&gt;Very first blog post&lt;/h2&gt;
+&lt;p&gt;After a long time thinking whether I would or should start a blog, I finally have! As a dyslectic software engineer this is exciting for me because writing and reading is not easy for me. (Spoiler) Some very critical readers will find flaws in my writing, I am sure about that 😇.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://media.giphy.com/media/13GIgrGdslD9oQ/giphy.gif&#34; alt=&#34;jim carry typing&#34;&gt;&lt;/p&gt;
+&lt;p&gt;The reason I have started this blog is to write about my best achievements, creative solutions to problems me and my colleagues have come up with over time, to inspire others about software engineering, to reflect about my professional career but also to improve my technical writing skills.&lt;/p&gt;
+&lt;p&gt;If you are still interested, continue reading&amp;hellip; 
+I will give a short introduction about myself, my name is Thomas Reynders I am a enthusiastic software engineer. I live and work in the Dutch Silicon Valley area: Eindhoven. Since I was just a little kid I have been interested in technology. My dad worked at Philips and always had some hardware such as radios laying around which I could take apart. While video games got me hooked to playing with computers I always have felt a relation to hardware. It intrigues me and it has some kind of magical about it. My technical interest are in the IoT and high speed data processing domain. Working with embedded devices or big machines is awesome because making a product come to life and seeing things come together is super satisfying! (I think allot of engineers can relate to this 😁). In my free time I like to work in the garden, working on personal projects such as the smart mirror &amp;ldquo;&lt;a href=&#34;https://github.com/ovaar/mirrorm8/tree/dev&#34;&gt;mirrorm8&lt;/a&gt;&amp;rdquo; and doing sports such as running and cycling.&lt;/p&gt;
+&lt;p&gt;To finish my first post I would like to thank &lt;a href=&#34;https://github.com/andybrewer&#34;&gt;andybrewer&lt;/a&gt; for building &lt;a href=&#34;https://andybrewer.github.io/mvp/&#34;&gt;MVP.css&lt;/a&gt; and &lt;a href=&#34;https://github.com/andybrewer&#34;&gt;embik&lt;/a&gt; for building a Hugo &lt;a href=&#34;https://github.com/embik/hugo-theme-lyla.git&#34;&gt;theme&lt;/a&gt; 👍.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
+
