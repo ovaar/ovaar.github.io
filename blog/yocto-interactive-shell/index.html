@@ -1,16 +1,32 @@
 <!DOCTYPE html>
-<html><meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>
-  Yocto interactive shell - Ovaar - Blog
-</title>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>
+    
+      Yocto interactive shell - Ovaar - Blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
-
-
-
-<link rel="stylesheet" href="/css/stylesheet.min.css">
-<link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+</head>
 <body>
       <header><nav>
   
@@ -39,8 +55,15 @@
 </svg>
 </a> </h2>
 <p>One of the reasons I have started this blog is to write about my best achievements. This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own <a href="https://github.com/topic-embedded-products/topic-platform">BSP</a> for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.</p>
-<p>Due to an increasing demand of production ready devices by our customer delivering actual software features became more and more challenging. Making the devices production ready was something we did in-house. Preparing each device required doing some manual actions and each device needed to be flashed using a Micro SD card. For example: the devices required a MAC address to be installed in the EEPROM and the yocto image to be flashed to NOR Flash using <a href="https://github.com/sbabic/swupdate">swupdate</a>.</p>
-<p>Back then I had an idea to speed up the process, it was to create a seperate yocto image that would bypass the getty login prompt to run an interactive script. This script could flash, erase flash, write to EEPROM, erase the EEPROM and would ask the user to which boot partition to write the swupdate package.</p>
+<p>Due to an increasing demand of delivering production ready devices to our customer, delivering actual software features became more and more challenging. Making the devices production ready required some manual steps and was something we did in-house.</p>
+<ol>
+<li>Create a bootable SD card with a yocto image containing an <a href="https://github.com/sbabic/swupdate">swupdate</a> package</li>
+<li>Erase NOR-flash</li>
+<li>Run swupdate and select the right boot partition</li>
+<li>Erase EEPROM</li>
+<li>Write MAC address to EEPROM</li>
+</ol>
+<p>This turned out to be error sensitive process. So I decided to create a script which restricts the user input and does validation on the MAC address. Also it could flash the swupdate package, erase flash, write to EEPROM, erase the EEPROM and would prompt the user to select the boot partition to write the swupdate package to. Now I had the script, but still I needed to enter user credentials every time I booted from the SD-card. Would it not be great to bypass the getty login prompt and then run the script interactively 🤓!</p>
 <p>Enough talk, lets dive in&hellip;.</p>
 <p>Bitbake allows for running code after succesfully building the root filesystem. The <code>ROOTFS_POSTPROCESS_COMMAND</code> allowed to edit the getty systemd service files using <a href="https://www.gnu.org/software/sed/manual/sed.html">sed</a>. Most importantly if you would open <code>console-getty.service</code> it runs <code>agetty</code> on the terminal in order to prompt for the user login. That not what I wanted, so I replaced it with <code>stty</code>.</p>
 <p><code>console-getty.service</code></p>
