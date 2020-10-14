@@ -11,13 +11,12 @@
     
     
     <item>
-      <title>[Linux] Yocto interactive shell</title>
-      <link>https://ovaar.github.io/blog/yocto-interactive-shell/</link>
+      <title>How to create an interactive Yocto shell</title>
+      <link>https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/</link>
       <pubDate>Mon, 20 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/yocto-interactive-shell/</guid>
-      <description>&lt;h2 id=&#34;linux-yocto-interactive-shell&#34;&gt;[Linux] yocto interactive shell&lt;/h2&gt;
-&lt;p&gt;This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own &lt;a href=&#34;https://github.com/topic-embedded-products/topic-platform&#34;&gt;BSP&lt;/a&gt; for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.&lt;/p&gt;
+      <guid>https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/</guid>
+      <description>&lt;p&gt;This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own &lt;a href=&#34;https://github.com/topic-embedded-products/topic-platform&#34;&gt;BSP&lt;/a&gt; for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.&lt;/p&gt;
 &lt;p&gt;Due to an increasing demand of delivering production ready devices to our customer, delivering actual software features became more and more challenging. Making the devices production ready required some manual steps and was something we did in-house.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Create a bootable SD card with a yocto image containing an &lt;a href=&#34;https://github.com/sbabic/swupdate&#34;&gt;swupdate&lt;/a&gt; package&lt;/li&gt;

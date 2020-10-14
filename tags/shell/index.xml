@@ -11,13 +11,12 @@
     
     
     <item>
-      <title>[Linux] Setting MAC address</title>
-      <link>https://ovaar.github.io/blog/setting-mac-address/</link>
+      <title>How to set Linux MAC address</title>
+      <link>https://ovaar.github.io/blog/how-to-set-linux-mac-address/</link>
       <pubDate>Mon, 27 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/setting-mac-address/</guid>
-      <description>&lt;h2 id=&#34;linux-setting-mac-address&#34;&gt;[Linux] Setting MAC address&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://ovaar.github.io/blog/yocto-interactive-shell/&#34;&gt;Last post&lt;/a&gt; I wrote about a embedded device running Linux where a MAC address is stored in the EEPROM. The first six bytes are reserved for the MAC address which (ideally) only should be written once.&lt;/p&gt;
+      <guid>https://ovaar.github.io/blog/how-to-set-linux-mac-address/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/&#34;&gt;Last post&lt;/a&gt; I wrote about a embedded device running Linux where a MAC address is stored in the EEPROM. The first six bytes are reserved for the MAC address which (ideally) only should be written once.&lt;/p&gt;
 &lt;p&gt;To apply the MAC address the numbers need to be hexadecimal formatted and separated with a colon(&lt;code&gt;:&lt;/code&gt;) symbol. It is possible to dynamically change the MAC address of Ethernet, beware that you need to be &lt;code&gt;root&lt;/code&gt; and that the ethernet interface is not up.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-shell&#34; data-lang=&#34;shell&#34;&gt;ifconfig eth0 hw ether 00:01:02:03:04:05
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Or, you could permanently change the MAC address by setting it into the &lt;code&gt;hwaddress&lt;/code&gt; in the &lt;code&gt;/etc/network/interfaces&lt;/code&gt; configuration file.&lt;/p&gt;
@@ -44,13 +43,12 @@ MAC&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;c
     </item>
     
     <item>
-      <title>[Linux] Yocto interactive shell</title>
-      <link>https://ovaar.github.io/blog/yocto-interactive-shell/</link>
+      <title>How to create an interactive Yocto shell</title>
+      <link>https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/</link>
       <pubDate>Mon, 20 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/yocto-interactive-shell/</guid>
-      <description>&lt;h2 id=&#34;linux-yocto-interactive-shell&#34;&gt;[Linux] yocto interactive shell&lt;/h2&gt;
-&lt;p&gt;This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own &lt;a href=&#34;https://github.com/topic-embedded-products/topic-platform&#34;&gt;BSP&lt;/a&gt; for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.&lt;/p&gt;
+      <guid>https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/</guid>
+      <description>&lt;p&gt;This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own &lt;a href=&#34;https://github.com/topic-embedded-products/topic-platform&#34;&gt;BSP&lt;/a&gt; for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.&lt;/p&gt;
 &lt;p&gt;Due to an increasing demand of delivering production ready devices to our customer, delivering actual software features became more and more challenging. Making the devices production ready required some manual steps and was something we did in-house.&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;Create a bootable SD card with a yocto image containing an &lt;a href=&#34;https://github.com/sbabic/swupdate&#34;&gt;swupdate&lt;/a&gt; package&lt;/li&gt;

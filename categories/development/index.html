@@ -46,14 +46,31 @@ if (!doNotTrack) {
 <h1>Blog Posts</h1>
         
         
+        <nav class="list-nav">
+          
+          
+          <a href="/categories/development/page/2/">next page</a>
+          
+        </nav>
+        
       </header>
       <main>
         
         <article>
-          <a href="https://ovaar.github.io/blog/reactive-testing/">
-            <h3>[Python] Reactive testing with Gherkin, ReactiveX and asyncio</h3>
+          <a href="https://ovaar.github.io/blog/csharp-performance-profiling-introduction/">
+            <h3>C# Performance - Profiling introduction</h3>
           </a>
-          <p>[Python] Reactive testing with Gherkin, ReactiveX and asyncio Have you ever written integration test with asynchronous behavior? I have, and it has always been a struggle&hellip; CI/CD pipelines which regularly fail because of some timeout. Then, &ldquo;a wild project manager appears!&rdquo;, and starts asking questions why investigating takes so long&hellip;
+          <p>Welcome! In this blog series I will share some of the knowledge I gained when doing performance optimizations for a project some time ago. Optimizing code for performance requires good knowledge of the fundamental concepts of computer architecture. In this first blog post I will explain about software profiling, some of the computer architecture concepts and my personal experience what worked for my and what did not. In later post(s) I will go more into detail in how to optimize code for performance.</p>
+          <p>
+            <small>published on Wed, 14 Oct 2020</small>
+          </p>
+        </article>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/">
+            <h3>Reactive testing with Gherkin, ReactiveX and asyncio</h3>
+          </a>
+          <p>Have you ever written integration test with asynchronous behavior? I have, and it has always been a struggle&hellip; CI/CD pipelines which regularly fail because of some timeout. Then, &ldquo;a wild project manager appears!&rdquo;, and starts asking questions why investigating takes so long&hellip;
  Solution: The timeout is increased to quickly solve the issue, when usually the failure is caused by regression.
  There must be some more elegant way to assert or await asynchronous calls in Behavior Driven Development (BDD) steps.</p>
           <p>
@@ -62,22 +79,23 @@ if (!doNotTrack) {
         </article>
         
         <article>
-          <a href="https://ovaar.github.io/blog/setup-docker-credential-store/">
-            <h3>[Docker] Setup docker credential-store</h3>
+          <a href="https://ovaar.github.io/blog/how-to-setup-docker-credential-store/">
+            <h3>How to setup docker credential-store</h3>
           </a>
-          <p>[Docker] Setup docker credential-store Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.
+          <p>Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.
 WARNING! Your password will be stored unencrypted …To solve this we will use the Docker credential-store feature.
- Ubuntu: docker-credential-pass OSX: osxkeychain Windows: wincred  In this blog post we are going to use install the latest docker-credential-pass helper in combination with pass as a store and gpg for key generation.</p>
+ Ubuntu: docker-credential-pass OSX: osxkeychain Windows: wincred  In this blog post we are going to use install the latest docker-credential-pass helper in combination with pass as a store and gpg for key generation.
+sudo apt-get install -y pass gpg gpg2 --gen-key # copy gpg-key pass init &#34;&lt;gpg-pub-key&gt;&#34; sed -i &#39;0,/{/s/{/{\n\t&#34;credsStore&#34;: &#34;pass&#34;,/&#39; ~/.</p>
           <p>
             <small>published on Tue, 28 Jul 2020</small>
           </p>
         </article>
         
         <article>
-          <a href="https://ovaar.github.io/blog/setting-mac-address/">
-            <h3>[Linux] Setting MAC address</h3>
+          <a href="https://ovaar.github.io/blog/how-to-set-linux-mac-address/">
+            <h3>How to set Linux MAC address</h3>
           </a>
-          <p>[Linux] Setting MAC address Last post I wrote about a embedded device running Linux where a MAC address is stored in the EEPROM. The first six bytes are reserved for the MAC address which (ideally) only should be written once.
+          <p>Last post I wrote about a embedded device running Linux where a MAC address is stored in the EEPROM. The first six bytes are reserved for the MAC address which (ideally) only should be written once.
 To apply the MAC address the numbers need to be hexadecimal formatted and separated with a colon(:) symbol. It is possible to dynamically change the MAC address of Ethernet, beware that you need to be root and that the ethernet interface is not up.</p>
           <p>
             <small>published on Mon, 27 Jul 2020</small>
@@ -85,23 +103,12 @@ To apply the MAC address the numbers need to be hexadecimal formatted and separa
         </article>
         
         <article>
-          <a href="https://ovaar.github.io/blog/yocto-interactive-shell/">
-            <h3>[Linux] Yocto interactive shell</h3>
+          <a href="https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/">
+            <h3>How to create an interactive Yocto shell</h3>
           </a>
-          <p>[Linux] yocto interactive shell This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own BSP for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.</p>
+          <p>This post is about a feature request which I have implemented, at time of writing, about 2 years back. It always stuck with me because the project I was doing at the time was my first yocto experience. Topic has its own BSP for FPGA boards on top of a Linux distribution. A custom board was specifically designed for a customor which would run our software that would interface with another custom low power embedded device.</p>
           <p>
             <small>published on Mon, 20 Jul 2020</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/first-post/">
-            <h3>First Post</h3>
-          </a>
-          <p>Very first blog post After a long time thinking whether I would or should start a blog, I finally have! As a dyslectic software engineer this is exciting for me because writing and reading is not easy for me. (Spoiler) Some very critical readers will find flaws in my writing, I am sure about that 😇.
-The reason I have started this blog is to write about my best achievements, creative solutions to problems me and my colleagues have come up with over time, to inspire others about software engineering, to reflect about my professional career but also to improve my technical writing skills.</p>
-          <p>
-            <small>published on Fri, 17 Jul 2020</small>
           </p>
         </article>
         

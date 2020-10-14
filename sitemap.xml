@@ -3,22 +3,52 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://ovaar.github.io/blog/reactive-testing/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://ovaar.github.io/tags/async/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://ovaar.github.io/blog/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/tags/c#/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/blog/csharp-performance-profiling-introduction/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://ovaar.github.io/categories/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/categories/development/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/categories/performance/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/tags/performance/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/tags/</loc>
+    <lastmod>2020-10-14T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/tags/async/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
@@ -28,17 +58,7 @@
   </url>
   
   <url>
-    <loc>https://ovaar.github.io/categories/development/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://ovaar.github.io/tags/gherkin/</loc>
-    <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://ovaar.github.io/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
@@ -48,23 +68,18 @@
   </url>
   
   <url>
-    <loc>https://ovaar.github.io/tags/reactivex/</loc>
+    <loc>https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
-    <loc>https://ovaar.github.io/tags/</loc>
+    <loc>https://ovaar.github.io/tags/reactivex/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>https://ovaar.github.io/tags/testing/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://ovaar.github.io/blog/setup-docker-credential-store/</loc>
-    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
   </url>
   
   <url>
@@ -83,7 +98,12 @@
   </url>
   
   <url>
-    <loc>https://ovaar.github.io/blog/setting-mac-address/</loc>
+    <loc>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</loc>
+    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ovaar.github.io/blog/how-to-set-linux-mac-address/</loc>
     <lastmod>2020-07-27T00:00:00+00:00</lastmod>
   </url>
   
@@ -103,7 +123,7 @@
   </url>
   
   <url>
-    <loc>https://ovaar.github.io/blog/yocto-interactive-shell/</loc>
+    <loc>https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/</loc>
     <lastmod>2020-07-20T00:00:00+00:00</lastmod>
   </url>
   

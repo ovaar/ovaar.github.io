@@ -11,13 +11,12 @@
     
     
     <item>
-      <title>[Python] Reactive testing with Gherkin, ReactiveX and asyncio</title>
-      <link>https://ovaar.github.io/blog/reactive-testing/</link>
+      <title>Reactive testing with Gherkin, ReactiveX and asyncio</title>
+      <link>https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/</link>
       <pubDate>Mon, 14 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/reactive-testing/</guid>
-      <description>&lt;h2 id=&#34;python-reactive-testing-with-gherkin-reactivex-and-asyncio&#34;&gt;[Python] Reactive testing with Gherkin, ReactiveX and asyncio&lt;/h2&gt;
-&lt;p&gt;Have you ever written integration test with asynchronous behavior? I have, and it has always been a struggle&amp;hellip; CI/CD pipelines which regularly fail because of some timeout. Then, &amp;ldquo;a wild project manager appears!&amp;rdquo;, and starts asking questions why investigating takes so long&amp;hellip;&lt;/p&gt;
+      <guid>https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/</guid>
+      <description>&lt;p&gt;Have you ever written integration test with asynchronous behavior? I have, and it has always been a struggle&amp;hellip; CI/CD pipelines which regularly fail because of some timeout. Then, &amp;ldquo;a wild project manager appears!&amp;rdquo;, and starts asking questions why investigating takes so long&amp;hellip;&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Solution: The timeout is increased to quickly solve the issue, when usually the failure is caused by regression.&lt;/p&gt;
 &lt;/blockquote&gt;

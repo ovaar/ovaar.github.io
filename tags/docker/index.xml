@@ -11,13 +11,12 @@
     
     
     <item>
-      <title>[Docker] Setup docker credential-store</title>
-      <link>https://ovaar.github.io/blog/setup-docker-credential-store/</link>
+      <title>How to setup docker credential-store</title>
+      <link>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</link>
       <pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/setup-docker-credential-store/</guid>
-      <description>&lt;h2 id=&#34;docker-setup-docker-credential-store&#34;&gt;[Docker] Setup docker credential-store&lt;/h2&gt;
-&lt;p&gt;Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.&lt;/p&gt;
+      <guid>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</guid>
+      <description>&lt;p&gt;Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;WARNING! Your password will be stored unencrypted …
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To solve this we will use the Docker &lt;a href=&#34;https://docs.docker.com/engine/reference/commandline/login/#credentials-store&#34;&gt;credential-store&lt;/a&gt; feature.&lt;/p&gt;
 &lt;ul&gt;
