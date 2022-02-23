@@ -3,9 +3,14 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
   <title>
     
-      How to create an interactive Yocto shell - Ovaar - Blog
+      How to create an interactive Yocto shell - Ovaar - Software engineering blog
     
   </title>
    
@@ -13,7 +18,7 @@
    
   
   <link rel="stylesheet" href="/css/stylesheet.min.css" />
-  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
   
 <script type="application/javascript">
 var doNotTrack = false;
@@ -30,7 +35,7 @@ if (!doNotTrack) {
 <body>
       <header><nav>
   
-  <a href="https://ovaar.github.io/">Ovaar - Blog</a>
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
   
   <ul>
     <li>
@@ -76,7 +81,7 @@ if (!doNotTrack) {
 <p>Enough talk, lets dive in&hellip;.</p>
 <p>Bitbake allows for running code after succesfully building the root filesystem. The <code>ROOTFS_POSTPROCESS_COMMAND</code> allowed to edit the getty systemd service files using <a href="https://www.gnu.org/software/sed/manual/sed.html">sed</a>. Most importantly if you would open <code>console-getty.service</code> it runs <code>agetty</code> on the terminal in order to prompt for the user login. That not what I wanted, so I replaced it with <code>stty</code>.</p>
 <p><code>console-getty.service</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
 <span style="color:#a6e22e">Description</span><span style="color:#f92672">=</span><span style="color:#e6db74">Console Getty</span>
 <span style="color:#a6e22e">After</span><span style="color:#f92672">=</span><span style="color:#e6db74">systemd-user-sessions.service plymouth-quit-wait.service</span>
 <span style="color:#a6e22e">Before</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target</span>
@@ -97,11 +102,11 @@ if (!doNotTrack) {
 <span style="color:#66d9ef">[Install]</span>
 <span style="color:#a6e22e">WantedBy</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target</span>
 </code></pre></div><p><code>interactive.bb</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">GETTY_SYSTEMD_SERVICES <span style="color:#960050;background-color:#1e0010">?</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; </span><span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/serial-getty@.service </span><span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/console-getty.service </span><span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/getty@.service </span><span style="color:#ae81ff">\
-</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    ${IMAGE_ROOTFS}${systemd_system_unitdir}/container-getty@.service </span><span style="color:#ae81ff">\
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py">GETTY_SYSTEMD_SERVICES <span style="color:#960050;background-color:#1e0010">?</span><span style="color:#f92672">=</span> <span style="color:#e6db74">&#34; </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    $</span><span style="color:#e6db74">{IMAGE_ROOTFS}</span><span style="color:#e6db74">$</span><span style="color:#e6db74">{systemd_system_unitdir}</span><span style="color:#e6db74">/serial-getty@.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    $</span><span style="color:#e6db74">{IMAGE_ROOTFS}</span><span style="color:#e6db74">$</span><span style="color:#e6db74">{systemd_system_unitdir}</span><span style="color:#e6db74">/console-getty.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    $</span><span style="color:#e6db74">{IMAGE_ROOTFS}</span><span style="color:#e6db74">$</span><span style="color:#e6db74">{systemd_system_unitdir}</span><span style="color:#e6db74">/getty@.service </span><span style="color:#ae81ff">\
+</span><span style="color:#ae81ff"></span><span style="color:#e6db74">    $</span><span style="color:#e6db74">{IMAGE_ROOTFS}</span><span style="color:#e6db74">$</span><span style="color:#e6db74">{systemd_system_unitdir}</span><span style="color:#e6db74">/container-getty@.service </span><span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span><span style="color:#e6db74">&#34;</span>
 <span style="color:#75715e"># Replace agetty, which prompts for a user login</span>
 <span style="color:#75715e"># with stty. Than disable tty reset and hangup to</span>
@@ -115,7 +120,7 @@ disable_login_prompt () {
 ROOTFS_POSTPROCESS_COMMAND <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;disable_login_prompt;&#34;</span>
 </code></pre></div><p>Next create a systemd service which runs after getty has started which to execute the interactive script.</p>
 <p><code>interactive.service</code></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-ini" data-lang="ini"><span style="color:#66d9ef">[Unit]</span>
 <span style="color:#a6e22e">Description</span><span style="color:#f92672">=</span><span style="color:#e6db74">Interactive installation script that runs at startup.</span>
 <span style="color:#a6e22e">After</span><span style="color:#f92672">=</span><span style="color:#e6db74">getty.target multi-user.target</span>
 
@@ -133,17 +138,8 @@ ROOTFS_POSTPROCESS_COMMAND <span style="color:#f92672">+=</span> <span style="co
 
         </article>
       </main>
-      <footer><script
-  data-name="BMC-Widget"
-  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-  data-id="btVGTv4zM"
-  data-description="Support me on Buy me a coffee!"
-  data-message="Thank you for visiting. You can now buy me a coffee!"
-  data-color="#5F7FFF"
-  data-position=""
-  data-x_margin="18"
-  data-y_margin="18"
-></script>
+      <footer><hr>
+
 </footer>
     </body>
 </html>

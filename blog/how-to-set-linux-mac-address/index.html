@@ -3,9 +3,14 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
   <title>
     
-      How to set Linux MAC address - Ovaar - Blog
+      How to set Linux MAC address - Ovaar - Software engineering blog
     
   </title>
    
@@ -13,7 +18,7 @@
    
   
   <link rel="stylesheet" href="/css/stylesheet.min.css" />
-  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
   
 <script type="application/javascript">
 var doNotTrack = false;
@@ -30,7 +35,7 @@ if (!doNotTrack) {
 <body>
       <header><nav>
   
-  <a href="https://ovaar.github.io/">Ovaar - Blog</a>
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
   
   <ul>
     <li>
@@ -63,14 +68,14 @@ if (!doNotTrack) {
 <article class="content">
           <p><a href="/blog/how-to-create-an-interactive-yocto-shell/">Last post</a> I wrote about a embedded device running Linux where a MAC address is stored in the EEPROM. The first six bytes are reserved for the MAC address which (ideally) only should be written once.</p>
 <p>To apply the MAC address the numbers need to be hexadecimal formatted and separated with a colon(<code>:</code>) symbol. It is possible to dynamically change the MAC address of Ethernet, beware that you need to be <code>root</code> and that the ethernet interface is not up.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ifconfig eth0 hw ether 00:01:02:03:04:05
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ifconfig eth0 hw ether 00:01:02:03:04:05
 </code></pre></div><p>Or, you could permanently change the MAC address by setting it into the <code>hwaddress</code> in the <code>/etc/network/interfaces</code> configuration file.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">auto eth0
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">auto eth0
 iface eth0 inet dhcp
     hwaddress ether 00:01:02:03:04:05
 </code></pre></div><p>Now we know how and where to set the MAC address. Next, we can read the first six bytes using <code>dd</code> and pipe it to <code>hexdump</code>. Fortunately, <a href="https://www.man7.org/linux/man-pages/man1/hexdump.1.html">hexdump</a> already provides API for formatting the input.</p>
 <p>The <code>-e '1/1' %02x</code> parameter will format each space followed by a byte into a hexadecimal number with two digits and a leading zero if needed.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">DELIMITER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;:&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">DELIMITER<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;:&#34;</span>
 MAC<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>$EEPROM bs<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span> count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> | hexdump -ve <span style="color:#e6db74">&#39;1/1 &#34;%02x&#39;</span><span style="color:#e6db74">&#34;</span>$DELIMITER<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;&#39;</span><span style="color:#66d9ef">)</span>
 echo $MAC <span style="color:#75715e"># output 00:01:02:03:04:05:</span>
 </code></pre></div><p>Finnaly the trailing colon <code>:</code> needs to be removed. There are multiple ways to do this</p>
@@ -79,25 +84,16 @@ echo $MAC <span style="color:#75715e"># output 00:01:02:03:04:05:</span>
 <li>Use Bash Substring Expansion to remove the character from a string.</li>
 </ol>
 <p>Solution 1:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">MAC<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>$EEPROM bs<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span> count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> | hexdump -ve <span style="color:#e6db74">&#39;1/1 &#34;%02x&#39;</span><span style="color:#e6db74">&#34;</span>$DELIMITER<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;&#39;</span> | sed s/:$//g<span style="color:#66d9ef">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">MAC<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>$EEPROM bs<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span> count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> | hexdump -ve <span style="color:#e6db74">&#39;1/1 &#34;%02x&#39;</span><span style="color:#e6db74">&#34;</span>$DELIMITER<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;&#39;</span> | sed s/:$//g<span style="color:#66d9ef">)</span>
 </code></pre></div><p>Solution 2:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">MAC<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>$EEPROM bs<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span> count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> | hexdump -ve <span style="color:#e6db74">&#39;1/1 &#34;%02x&#39;</span><span style="color:#e6db74">&#34;</span>$DELIMITER<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;&#39;</span><span style="color:#66d9ef">)</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">MAC<span style="color:#f92672">=</span><span style="color:#66d9ef">$(</span>dd <span style="color:#66d9ef">if</span><span style="color:#f92672">=</span>$EEPROM bs<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span> count<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span> | hexdump -ve <span style="color:#e6db74">&#39;1/1 &#34;%02x&#39;</span><span style="color:#e6db74">&#34;</span>$DELIMITER<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">&#39;&#34;&#39;</span><span style="color:#66d9ef">)</span>
 MAC<span style="color:#f92672">=</span><span style="color:#e6db74">${</span>MAC:<span style="color:#66d9ef">:-</span>1<span style="color:#e6db74">}</span> <span style="color:#75715e"># Remove last character &#39;:&#39;</span>
 </code></pre></div><p>Personally I prefer solution 2 since I find that <code>sed</code> harder to read and I often have to explain it to other engineers who are reviewing it. Therefore solution 2 (with a comment) is clearer. If you are a system expert and love one-lines, go for solution 1.</p>
 
         </article>
       </main>
-      <footer><script
-  data-name="BMC-Widget"
-  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-  data-id="btVGTv4zM"
-  data-description="Support me on Buy me a coffee!"
-  data-message="Thank you for visiting. You can now buy me a coffee!"
-  data-color="#5F7FFF"
-  data-position=""
-  data-x_margin="18"
-  data-y_margin="18"
-></script>
+      <footer><hr>
+
 </footer>
     </body>
 </html>

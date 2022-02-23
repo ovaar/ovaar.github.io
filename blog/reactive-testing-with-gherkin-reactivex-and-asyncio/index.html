@@ -3,9 +3,14 @@
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
   <title>
     
-      Reactive testing with Gherkin, ReactiveX and asyncio - Ovaar - Blog
+      Reactive testing with Gherkin, ReactiveX and asyncio - Ovaar - Software engineering blog
     
   </title>
    
@@ -13,7 +18,7 @@
    
   
   <link rel="stylesheet" href="/css/stylesheet.min.css" />
-  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Blog">
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
   
 <script type="application/javascript">
 var doNotTrack = false;
@@ -30,7 +35,7 @@ if (!doNotTrack) {
 <body>
       <header><nav>
   
-  <a href="https://ovaar.github.io/">Ovaar - Blog</a>
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
   
   <ul>
     <li>
@@ -78,7 +83,7 @@ This post is about practical use of combining RxPy, pytest, Gherkin, asyncio wit
 <p>Use case: I have a central lighting system where lights can connect to and as a user I want to be able to turn on and off the lights.</p>
 </blockquote>
 <p>To only focus on the testing part, we will abstract the lighting hardware using a simulator and assume the lights are able to communicate via the MQTT protocol. Let&rsquo;s begin with looking at how the Gherkin test Feature is described which will be used in order to execute the test.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-gherkin" data-lang="gherkin"><span style="color:#75715e"># lighting\integration_tests\tests\features\lighting.feature</span><span style="color:#a6e22e">
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-gherkin" data-lang="gherkin"><span style="color:#75715e"># lighting\integration_tests\tests\features\lighting.feature</span><span style="color:#a6e22e">
 </span><span style="color:#a6e22e"></span><span style="color:#66d9ef">Feature:</span><span style="color:#a6e22e"> The lights must be able to be turned on and off
 </span><span style="color:#a6e22e">
 </span><span style="color:#a6e22e">    </span><span style="color:#66d9ef">Scenario:</span><span style="color:#a6e22e"> The lights are controlled
@@ -97,14 +102,14 @@ This post is about practical use of combining RxPy, pytest, Gherkin, asyncio wit
 </span><span style="color:#66d9ef">
 </span></code></pre></div><p>The test consists of three stage. In some way it like a Unit Test it uses Arrange / Act / Assert (AAA). In the first stage an object is build containing the initial stage for the simulator as well as setting up the the ReactiveX Observables in order to receive new states via a Mqtt Client. The ReactiveX Observables you could compare to adding a <code>spy</code> to a method in order to check if it was called. This must be done before executing the test so that we will not miss any events.</p>
 <p>The second stage adds Lightbulb Simulators to the <code>TestContext</code> and connects them to the MQTT broker. The simulator publishes the topic <code>lights/connect/$lightId</code> to register itself with the <code>core</code> module. Then the connected lights can be controlled by sending an MQTT message to topic <code>lights/function/on</code> or <code>lights/function/off</code>. The <code>core</code> will publish an individual topic for each simulated Lightbulb. Below you see the <code>Lightbulb</code> data holder class. In order to understand the last BDD step <code>And I await the result</code> I have to first explain about how <code>rx.subject</code> works.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\data.py</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\data.py</span>
 <span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Dict, Optional
-<span style="color:#f92672">import</span> rx.subject <span style="color:#f92672">as</span> RxSubject
+<span style="color:#f92672">import</span> rx.subject <span style="color:#66d9ef">as</span> RxSubject
 
 
 <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Lightbulb</span>(object):
     uuid: str
-    state: Optional[str] <span style="color:#f92672">=</span> None
+    state: Optional[str] <span style="color:#f92672">=</span> <span style="color:#66d9ef">None</span>
     light_state: RxSubject<span style="color:#f92672">.</span>Subject
 
     <span style="color:#66d9ef">def</span> __init__(self, uuid: str):
@@ -114,8 +119,8 @@ This post is about practical use of combining RxPy, pytest, Gherkin, asyncio wit
     <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">complete</span>(self):
         self<span style="color:#f92672">.</span>light_state<span style="color:#f92672">.</span>on_completed()
 </code></pre></div><p>The class <code>rx.Subject</code> inherits from <code>rx.core.Observable</code> and <code>rx.core.Observer</code>. The class <code>rx.Subject</code> allows you to push data into the Rx Operators using the <code>rx.core.Observable</code> interface. When a new state is received via the topic: <code>lights/{lightbulbId/state</code>, then the <code>light_state.on_next(...)</code> is called which pipes the data to the <code>rx.operators</code>. ReactiveX operators are basically predicate functions which will evaluate the observable state with every element added to the sequence. I use <a href="http://reactivex.io/documentation/operators/takewhile.html">rx.operators.take_while</a> to evaluate if the state of the lightbulb equals the expected <code>light_final_state</code>. The <code>take_while</code> Operator will automatically call on_complete if predicate function returns <code>False</code>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\steps\lights.py</span>
-<span style="color:#f92672">import</span> rx.operators <span style="color:#f92672">as</span> RxOp
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\steps\lights.py</span>
+<span style="color:#f92672">import</span> rx.operators <span style="color:#66d9ef">as</span> RxOp
 <span style="color:#f92672">from</span> rx <span style="color:#f92672">import</span> Observable <span style="color:#66d9ef">as</span> RxObservable
 <span style="color:#f92672">from</span> rx.scheduler.eventloop <span style="color:#f92672">import</span> AsyncIOScheduler
 
@@ -145,39 +150,39 @@ This post is about practical use of combining RxPy, pytest, Gherkin, asyncio wit
         <span style="color:#75715e"># Add data to the RxObservable sequence while the predicate function</span>
     	<span style="color:#75715e"># returns True. If it returns False the RxObservable is automatically</span>
     	<span style="color:#75715e"># completed and it includes the last result.</span>
-        RxOp<span style="color:#f92672">.</span>take_while(take_while_state, inclusive<span style="color:#f92672">=</span>True),
+        RxOp<span style="color:#f92672">.</span>take_while(take_while_state, inclusive<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>),
     )
 
     observable<span style="color:#f92672">.</span>subscribe(
-        on_next<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> i: <span style="color:#66d9ef">print</span>(f<span style="color:#e6db74">&#34;on_next: {i}&#34;</span>),
-        on_error<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> e: <span style="color:#66d9ef">print</span>(f<span style="color:#e6db74">&#34;on_error: {e}&#34;</span>),
-        on_completed<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span>: <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#34;on_completed&#34;</span>),
+        on_next<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> i: print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;on_next: </span><span style="color:#e6db74">{</span>i<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>),
+        on_error<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span> e: print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;on_error: </span><span style="color:#e6db74">{</span>e<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>),
+        on_completed<span style="color:#f92672">=</span><span style="color:#66d9ef">lambda</span>: print(<span style="color:#e6db74">&#34;on_completed&#34;</span>),
         scheduler<span style="color:#f92672">=</span>AsyncIOScheduler(loop)
     )
 
     awaitables<span style="color:#f92672">.</span>append(observable)
 </code></pre></div><p>Finally, the last step <code>And I await the result</code> from the file <code>lighting.feature</code> uses Asyncio to asynchronously await the ReactiveX Observables which were added to the <code>awaitables</code> list. The <a href="https://docs.python.org/3/library/asyncio-task.html#asyncio.gather">asyncio.gather</a> function will await for all results to be completed. Wrapping the <code>asyncio.gather</code> in a <code>main</code> function and executing it on the asyncio event loop using <code>loop.run_until_complete(main())</code> will block until all have been completed successfully or an exception is thrown.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\steps\lights.py</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#75715e"># lighting\integration_tests\tests\steps\lights.py</span>
 <span style="color:#a6e22e">@then</span>(<span style="color:#e6db74">&#39;I await the result&#39;</span>)
 <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">await_the_result</span>(awaitables: List[RxObservable], loop: asyncio<span style="color:#f92672">.</span>AbstractEventLoop):
     <span style="color:#66d9ef">if</span> len(awaitables) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
-        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;Nothing to await, continuing... &#39;</span>)
+        print(<span style="color:#e6db74">&#39;Nothing to await, continuing... &#39;</span>)
         <span style="color:#66d9ef">return</span>
 
-    <span style="color:#66d9ef">print</span>(f<span style="color:#e6db74">&#39;Awaiting tasks, count={len(awaitables)}&#39;</span>)
+    print(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Awaiting tasks, count=</span><span style="color:#e6db74">{</span>len(awaitables)<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;</span>)
 
-    async <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
-        await asyncio<span style="color:#f92672">.</span>gather(<span style="color:#f92672">*</span>awaitables)
+    <span style="color:#66d9ef">async</span> <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>():
+        <span style="color:#66d9ef">await</span> asyncio<span style="color:#f92672">.</span>gather(<span style="color:#f92672">*</span>awaitables)
 
     <span style="color:#66d9ef">try</span>:
-        <span style="color:#66d9ef">print</span>(<span style="color:#e6db74">&#39;start: run_until_complete&#39;</span>)
+        print(<span style="color:#e6db74">&#39;start: run_until_complete&#39;</span>)
         loop<span style="color:#f92672">.</span>run_until_complete(main())
         awaitables<span style="color:#f92672">.</span>clear()
     <span style="color:#66d9ef">except</span>:
         awaitables<span style="color:#f92672">.</span>clear()
         <span style="color:#66d9ef">raise</span>
 </code></pre></div><p>That is all! I hope I inspired you or gave you some insight in how to approach asynchronous assertions in testing software. For the ones who are curious about the test output, have a look below.</p>
-<pre><code>lighting-integration-tests_1  | ============================= test session starts ==============================
+<pre tabindex="0"><code>lighting-integration-tests_1  | ============================= test session starts ==============================
 lighting-integration-tests_1  | platform linux -- Python 3.8.2, pytest-6.0.1, py-1.9.0, pluggy-0.13.1 -- /usr/bin/python3
 lighting-integration-tests_1  | cachedir: .pytest_cache
 lighting-integration-tests_1  | rootdir: /lighting/integration_tests
@@ -245,17 +250,8 @@ reactive-testing_lighting-integration-tests_1 exited with code 0
 </code></pre>
         </article>
       </main>
-      <footer><script
-  data-name="BMC-Widget"
-  src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js"
-  data-id="btVGTv4zM"
-  data-description="Support me on Buy me a coffee!"
-  data-message="Thank you for visiting. You can now buy me a coffee!"
-  data-color="#5F7FFF"
-  data-position=""
-  data-x_margin="18"
-  data-y_margin="18"
-></script>
+      <footer><hr>
+
 </footer>
     </body>
 </html>
