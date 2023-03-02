@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      How to build Macos Universal Binaries with Conan and CMake - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>How to build Macos Universal Binaries with Conan and CMake</h1>
+        <p>
+          <small>published on Fri, 25 Nov 2022</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/development/">Development</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/cmake/">CMake</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/conan/">Conan</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/macos/">Macos</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <p><a href="https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary">Universal Binaries</a> contain native instructions for multiple target architectures like x86_64 and arm64 to run your app both on Intel Mac and Apple silicon machines. When using Conan there are a few common build systems, or native build tool generators, when creating packages from the Conan Center Index(CCI) like: CMake, Autotools, Pkgconfig, b2 (Boost Build) and Make. Some of these build tools have build-in support when it comes to building Universal Binaries.</p>
+<p>Lets start with some of the easy examples how to enable Universal builds in conan.</p>
+<h3 id="cmake">CMake&nbsp;<a class="anchor" href="#cmake"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>The CMake toolchain generator exposes the <a href="https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_ARCHITECTURES.html">CMAKE_OSX_ARCHITECTURES</a> flag to set the target architectures.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#f92672">from</span> conan <span style="color:#f92672">import</span> ConanFile
+<span style="color:#f92672">from</span> conan.tools.cmake <span style="color:#f92672">import</span> CMake, CMakeToolchain, cmake_layout
+<span style="color:#f92672">from</span> conan.tools.apple <span style="color:#f92672">import</span> is_apple_os
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PackageConan</span>(ConanFile):
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate</span>(self):
+        tc <span style="color:#f92672">=</span> CMakeToolchain(self)
+        <span style="color:#66d9ef">if</span> is_apple_os(self):
+            tc<span style="color:#f92672">.</span>blocks[<span style="color:#e6db74">&#34;apple_system&#34;</span>]<span style="color:#f92672">.</span>values[<span style="color:#e6db74">&#34;cmake_osx_architectures&#34;</span>] <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;x86_64;arm64&#34;</span>
+        tc<span style="color:#f92672">.</span>generate()
+</code></pre></div><h3 id="autotools">Autotools&nbsp;<a class="anchor" href="#autotools"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>Autotools allows you to set the target architectures via <code>extra_cflags</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#f92672">from</span> conan <span style="color:#f92672">import</span> ConanFile
+<span style="color:#f92672">from</span> conan.tools.gnu <span style="color:#f92672">import</span> Autotools, AutotoolsToolchain
+<span style="color:#f92672">from</span> conan.tools.apple <span style="color:#f92672">import</span> is_apple_os
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">PackageConan</span>(ConanFile):
+    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">generate</span>(self):
+        tc <span style="color:#f92672">=</span> AutotoolsToolchain(self)
+        <span style="color:#66d9ef">if</span> is_apple_os(self):
+            tc<span style="color:#f92672">.</span>extra_cflags<span style="color:#f92672">.</span>append(<span style="color:#e6db74">&#34;-arch x86_64 -arch arm64&#34;</span>)
+        tc<span style="color:#f92672">.</span>generate()
+</code></pre></div><h3 id="other-build-tools">Other build tools&nbsp;<a class="anchor" href="#other-build-tools"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>For other build tools that, I am less experienced with or have not found an easy solution for, I wrote a wrapper Conan recipe. This wrapper Conanfile takes the build output of a x86_64 and armv8 package and combines them using <code>lipo</code>.</p>
+<p>A script writes the hashes of the built packages that will be combined to a json file. When building the &ldquo;universal&rdquo; conan recipe it loads the json files and combines the build output of those two packages, for example &ldquo;arch=x86_64 AND build_type=Release&rdquo; with &ldquo;arch=armv8 AND build_type=Release&rdquo;, in a temporary directory that will be merged with the package_folder once done. The advantage of this approach is that you can update the original recipe from CCI without migrating the universal binaries merge logic to the updated recipe.</p>
+<p>See this <a href="https://gist.github.com/ovaar/2106071841f1e917f89d10f6d3095638">Github Gist</a> for the conanfile template.</p>
+<h3 id="verifying-universal-binaries-output">Verifying Universal Binaries output&nbsp;<a class="anchor" href="#verifying-universal-binaries-output"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">cd ~/.conan/data/&lt;packagename&gt;/_/_/package/&lt;hash&gt;/lib
+lipo -archs &lt;libname&gt;.a
+<span style="color:#75715e"># x86_64 arm64</span>
+
+lipo -archs &lt;libname&gt;.dylib
+<span style="color:#75715e"># x86_64 arm64</span>
+</code></pre></div>
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

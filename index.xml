@@ -5,10 +5,56 @@
     <link>https://ovaar.github.io/</link>
     <description>Recent content on Ovaar - Software engineering blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 25 Nov 2022 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ovaar.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>How to build Macos Universal Binaries with Conan and CMake</title>
+      <link>https://ovaar.github.io/blog/how-to-build-macos-universal-binaries-with-conan-and-cmake/</link>
+      <pubDate>Fri, 25 Nov 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/how-to-build-macos-universal-binaries-with-conan-and-cmake/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;https://developer.apple.com/documentation/apple-silicon/building-a-universal-macos-binary&#34;&gt;Universal Binaries&lt;/a&gt; contain native instructions for multiple target architectures like x86_64 and arm64 to run your app both on Intel Mac and Apple silicon machines. When using Conan there are a few common build systems, or native build tool generators, when creating packages from the Conan Center Index(CCI) like: CMake, Autotools, Pkgconfig, b2 (Boost Build) and Make. Some of these build tools have build-in support when it comes to building Universal Binaries.&lt;/p&gt;
+&lt;p&gt;Lets start with some of the easy examples how to enable Universal builds in conan.&lt;/p&gt;
+&lt;h3 id=&#34;cmake&#34;&gt;CMake&lt;/h3&gt;
+&lt;p&gt;The CMake toolchain generator exposes the &lt;a href=&#34;https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_ARCHITECTURES.html&#34;&gt;CMAKE_OSX_ARCHITECTURES&lt;/a&gt; flag to set the target architectures.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; ConanFile
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan.tools.cmake &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; CMake, CMakeToolchain, cmake_layout
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan.tools.apple &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; is_apple_os
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;PackageConan&lt;/span&gt;(ConanFile):
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;generate&lt;/span&gt;(self):
+        tc &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; CMakeToolchain(self)
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; is_apple_os(self):
+            tc&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;blocks[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;apple_system&amp;#34;&lt;/span&gt;]&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;values[&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cmake_osx_architectures&amp;#34;&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86_64;arm64&amp;#34;&lt;/span&gt;
+        tc&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;generate()
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;autotools&#34;&gt;Autotools&lt;/h3&gt;
+&lt;p&gt;Autotools allows you to set the target architectures via &lt;code&gt;extra_cflags&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; ConanFile
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan.tools.gnu &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Autotools, AutotoolsToolchain
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; conan.tools.apple &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; is_apple_os
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;PackageConan&lt;/span&gt;(ConanFile):
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;generate&lt;/span&gt;(self):
+        tc &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; AutotoolsToolchain(self)
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; is_apple_os(self):
+            tc&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;extra_cflags&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-arch x86_64 -arch arm64&amp;#34;&lt;/span&gt;)
+        tc&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;generate()
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;other-build-tools&#34;&gt;Other build tools&lt;/h3&gt;
+&lt;p&gt;For other build tools that, I am less experienced with or have not found an easy solution for, I wrote a wrapper Conan recipe. This wrapper Conanfile takes the build output of a x86_64 and armv8 package and combines them using &lt;code&gt;lipo&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;A script writes the hashes of the built packages that will be combined to a json file. When building the &amp;ldquo;universal&amp;rdquo; conan recipe it loads the json files and combines the build output of those two packages, for example &amp;ldquo;arch=x86_64 AND build_type=Release&amp;rdquo; with &amp;ldquo;arch=armv8 AND build_type=Release&amp;rdquo;, in a temporary directory that will be merged with the package_folder once done. The advantage of this approach is that you can update the original recipe from CCI without migrating the universal binaries merge logic to the updated recipe.&lt;/p&gt;
+&lt;p&gt;See this &lt;a href=&#34;https://gist.github.com/ovaar/2106071841f1e917f89d10f6d3095638&#34;&gt;Github Gist&lt;/a&gt; for the conanfile template.&lt;/p&gt;
+&lt;h3 id=&#34;verifying-universal-binaries-output&#34;&gt;Verifying Universal Binaries output&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;cd ~/.conan/data/&amp;lt;packagename&amp;gt;/_/_/package/&amp;lt;hash&amp;gt;/lib
+lipo -archs &amp;lt;libname&amp;gt;.a
+&lt;span style=&#34;color:#75715e&#34;&gt;# x86_64 arm64&lt;/span&gt;
+
+lipo -archs &amp;lt;libname&amp;gt;.dylib
+&lt;span style=&#34;color:#75715e&#34;&gt;# x86_64 arm64&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>How a smart mirror project finished after years of work</title>
