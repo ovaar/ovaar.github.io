@@ -62,6 +62,18 @@ if (!doNotTrack) {
       <main>
         
         <article>
+          <a href="https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/">
+            <h3>Create an array of all possible variants alternatives of std::variant type</h3>
+          </a>
+          <p>The standard library std::variant is a usefull feature, introduced since c++17, to define a type that can hold multiple alternative types.
+For example a cell of a CSV file could represent multiple data types such as a string or int. Declaring a new type std::variant&lt;std::string, int&gt; allows to store one of the alternative types at the time. The std::variant internally allocates space for the largest alternative type.
+ But what if you need to extract what the possible alternatives of the std::variant ?</p>
+          <p>
+            <small>published on Thu, 02 Mar 2023</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/how-to-build-macos-universal-binaries-with-conan-and-cmake/">
             <h3>How to build Macos Universal Binaries with Conan and CMake</h3>
           </a>
@@ -100,19 +112,6 @@ if (!doNotTrack) {
  There must be some more elegant way to assert or await asynchronous calls in Behavior Driven Development (BDD) steps.</p>
           <p>
             <small>published on Mon, 14 Sep 2020</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/how-to-setup-docker-credential-store/">
-            <h3>How to setup docker credential-store</h3>
-          </a>
-          <p>Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.
-WARNING! Your password will be stored unencrypted …To solve this we will use the Docker credential-store feature.
- Ubuntu: docker-credential-pass OSX: osxkeychain Windows: wincred  In this blog post we are going to use install the latest docker-credential-pass helper in combination with pass as a store and gpg for key generation.
-sudo apt-get install -y pass gpg gpg2 --gen-key # copy gpg-key pass init &#34;&lt;gpg-pub-key&gt;&#34; sed -i &#39;0,/{/s/{/{\n\t&#34;credsStore&#34;: &#34;pass&#34;,/&#39; ~/.</p>
-          <p>
-            <small>published on Tue, 28 Jul 2020</small>
           </p>
         </article>
         

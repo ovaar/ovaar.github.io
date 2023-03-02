@@ -64,6 +64,19 @@ if (!doNotTrack) {
       <main>
         
         <article>
+          <a href="https://ovaar.github.io/blog/how-to-setup-docker-credential-store/">
+            <h3>How to setup docker credential-store</h3>
+          </a>
+          <p>Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.
+WARNING! Your password will be stored unencrypted …To solve this we will use the Docker credential-store feature.
+ Ubuntu: docker-credential-pass OSX: osxkeychain Windows: wincred  In this blog post we are going to use install the latest docker-credential-pass helper in combination with pass as a store and gpg for key generation.
+sudo apt-get install -y pass gpg gpg2 --gen-key # copy gpg-key pass init &#34;&lt;gpg-pub-key&gt;&#34; sed -i &#39;0,/{/s/{/{\n\t&#34;credsStore&#34;: &#34;pass&#34;,/&#39; ~/.</p>
+          <p>
+            <small>published on Tue, 28 Jul 2020</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/how-to-set-linux-mac-address/">
             <h3>How to set Linux MAC address</h3>
           </a>

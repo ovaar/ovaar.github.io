@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      Create an array of all possible variants alternatives of std::variant type - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Create an array of all possible variants alternatives of std::variant type</h1>
+        <p>
+          <small>published on Thu, 02 Mar 2023</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/development/">Development</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <p>The standard library <a href="https://en.cppreference.com/w/cpp/utility/variant">std::variant</a> is a usefull feature, introduced since c++17, to define a type that can hold multiple alternative types.</p>
+<p>For example a cell of a CSV file could represent multiple data types such as a string or int. Declaring a new type <code>std::variant&lt;std::string, int&gt;</code> allows to store one of the alternative types at the time. The std::variant internally allocates space for the largest alternative type.</p>
+<blockquote>
+<p>But what if you need to extract what the possible alternatives of the std::variant ?</p>
+</blockquote>
+<p>There are some helper method than can give away some information about the internals of the declared std::variant type.</p>
+<ul>
+<li>variant_size, variant_size_v: obtains the size of the variant&rsquo;s list of alternatives at compile time</li>
+<li>variant_alternative variant_alternative_t: obtains the type of the alternative specified by its index, at compile time</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;variant&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;array&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;type_traits&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> Template, std<span style="color:#f92672">::</span>size_t I<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">auto</span> make_variant_alternative()
+{
+    <span style="color:#66d9ef">using</span> Type <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>variant_alternative_t<span style="color:#f92672">&lt;</span>I, Template<span style="color:#f92672">&gt;</span>;
+    <span style="color:#66d9ef">return</span> Type{};
+}
+
+<span style="color:#66d9ef">namespace</span> detail
+{
+    <span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>size_t I, <span style="color:#66d9ef">typename</span> VariantType, std<span style="color:#f92672">::</span>size_t N<span style="color:#f92672">&gt;</span>
+    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">VariantAlternativesLoop</span>
+    {
+        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">impl</span>(std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span>VariantType, N<span style="color:#f92672">&gt;&amp;</span> arr)
+        {
+            <span style="color:#75715e">// Instantiate a new instance of one of the concrete std::variant types by index.
+</span><span style="color:#75715e"></span>            arr[I <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>] <span style="color:#f92672">=</span> make_variant_alternative<span style="color:#f92672">&lt;</span>VariantType, I <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">&gt;</span>();
+
+            <span style="color:#75715e">// Continue the loop
+</span><span style="color:#75715e"></span>            VariantAlternativesLoop<span style="color:#f92672">&lt;</span>I <span style="color:#f92672">-</span> <span style="color:#ae81ff">1</span>, VariantType, N<span style="color:#f92672">&gt;::</span>impl(arr);
+        }
+    };
+
+    <span style="color:#75715e">// Provide default implementation
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> VariantType, std<span style="color:#f92672">::</span>size_t N<span style="color:#f92672">&gt;</span>
+    <span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">VariantAlternativesLoop</span><span style="color:#f92672">&lt;</span><span style="color:#ae81ff">0</span>, VariantType, N<span style="color:#f92672">&gt;</span>
+    {
+        <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">impl</span>(std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span>VariantType, N<span style="color:#f92672">&gt;&amp;</span>)
+        {
+            <span style="color:#75715e">// Do nothing (terminate loop)
+</span><span style="color:#75715e"></span>        }
+    };
+} <span style="color:#75715e">// namespace detail
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> VariantType<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">auto</span> make_variant_alternatives_array()
+{
+    <span style="color:#66d9ef">constexpr</span> std<span style="color:#f92672">::</span>size_t      N <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>variant_size_v<span style="color:#f92672">&lt;</span>VariantType<span style="color:#f92672">&gt;</span>;
+    std<span style="color:#f92672">::</span>array<span style="color:#f92672">&lt;</span>VariantType, N<span style="color:#f92672">&gt;</span> variantsArray;
+
+    detail<span style="color:#f92672">::</span>VariantAlternativesLoop<span style="color:#f92672">&lt;</span>N, VariantType, N<span style="color:#f92672">&gt;::</span>impl(variantsArray);
+
+    <span style="color:#66d9ef">return</span> variantsArray;
+}
+
+<span style="color:#66d9ef">using</span> property_t <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>variant<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>;
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span> ()
+{ 
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> properties <span style="color:#f92672">=</span> make_variant_alternatives_array<span style="color:#f92672">&lt;</span>property_t<span style="color:#f92672">&gt;</span>();
+    <span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> properties.size(); <span style="color:#f92672">++</span>i)
+    {
+        std<span style="color:#f92672">::</span>visit([](<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;&amp;</span> args)
+        {
+            <span style="color:#66d9ef">using</span> T <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>decay_t<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">decltype</span>(args)<span style="color:#f92672">&gt;</span>;
+            <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">constexpr</span> (std<span style="color:#f92672">::</span>is_same_v<span style="color:#f92672">&lt;</span>T, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>)
+                std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;integer&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+            <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">constexpr</span> (std<span style="color:#f92672">::</span>is_same_v<span style="color:#f92672">&lt;</span>T, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>)
+                std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;string&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        }, properties[i]);
+    } 
+}
+<span style="color:#75715e">// Program stdout
+</span><span style="color:#75715e">// $ integer
+</span><span style="color:#75715e">// $ string
+</span></code></pre></div>
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C&#43;&#43; on Ovaar - Software engineering blog</title>
+    <link>https://ovaar.github.io/tags/c&#43;&#43;/</link>
+    <description>Recent content in C&#43;&#43; on Ovaar - Software engineering blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Thu, 02 Mar 2023 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://ovaar.github.io/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Create an array of all possible variants alternatives of std::variant type</title>
+      <link>https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/</link>
+      <pubDate>Thu, 02 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/</guid>
+      <description>&lt;p&gt;The standard library &lt;a href=&#34;https://en.cppreference.com/w/cpp/utility/variant&#34;&gt;std::variant&lt;/a&gt; is a usefull feature, introduced since c++17, to define a type that can hold multiple alternative types.&lt;/p&gt;
+&lt;p&gt;For example a cell of a CSV file could represent multiple data types such as a string or int. Declaring a new type &lt;code&gt;std::variant&amp;lt;std::string, int&amp;gt;&lt;/code&gt; allows to store one of the alternative types at the time. The std::variant internally allocates space for the largest alternative type.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;But what if you need to extract what the possible alternatives of the std::variant ?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;There are some helper method than can give away some information about the internals of the declared std::variant type.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;variant_size, variant_size_v: obtains the size of the variant&amp;rsquo;s list of alternatives at compile time&lt;/li&gt;
+&lt;li&gt;variant_alternative variant_alternative_t: obtains the type of the alternative specified by its index, at compile time&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;variant&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;array&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;type_traits&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; Template, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t I&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; make_variant_alternative()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; Type &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;variant_alternative_t&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;I, Template&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; Type{};
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; detail
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t I, &lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; VariantType, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;VariantAlternativesLoop&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;impl&lt;/span&gt;(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;array&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; arr)
+        {
+            &lt;span style=&#34;color:#75715e&#34;&gt;// Instantiate a new instance of one of the concrete std::variant types by index.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;            arr[I &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_variant_alternative&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;VariantType, I &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;();
+
+            &lt;span style=&#34;color:#75715e&#34;&gt;// Continue the loop
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;            VariantAlternativesLoop&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;I &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;::&lt;/span&gt;impl(arr);
+        }
+    };
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Provide default implementation
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; VariantType, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;VariantAlternativesLoop&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;static&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;impl&lt;/span&gt;(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;array&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt;)
+        {
+            &lt;span style=&#34;color:#75715e&#34;&gt;// Do nothing (terminate loop)
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        }
+    };
+} &lt;span style=&#34;color:#75715e&#34;&gt;// namespace detail
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; VariantType&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; make_variant_alternatives_array()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t      N &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;variant_size_v&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;VariantType&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;array&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; variantsArray;
+
+    detail&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;VariantAlternativesLoop&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;N, VariantType, N&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;::&lt;/span&gt;impl(variantsArray);
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; variantsArray;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; property_t &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;variant&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; ()
+{ 
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; properties &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_variant_alternatives_array&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;property_t&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;();
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; properties.size(); &lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;i)
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;visit([](&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; args)
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; T &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;decay_t&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;decltype&lt;/span&gt;(args)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_same_v&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T, &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;)
+                std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;integer&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_same_v&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;)
+                std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+        }, properties[i]);
+    } 
+}
+&lt;span style=&#34;color:#75715e&#34;&gt;// Program stdout
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// $ integer
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// $ string
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
+    
+  </channel>
+</rss>
+
