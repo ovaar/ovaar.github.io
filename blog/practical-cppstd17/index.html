@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      Practical cppstd 17 highlights by example - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Practical cppstd 17 highlights by example</h1>
+        <p>
+          <small>published on Mon, 06 Mar 2023</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/development/">Development</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/c&#43;&#43;/">C&#43;&#43;</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <h1 id="practical-cppstd-17-highlights-by-example">Practical cppstd 17 highlights by example</h1>
+<ul>
+<li><a href="#language-features">Language Features</a></li>
+<li><a href="#library-features">Library Features</a></li>
+</ul>
+<h2 id="language-features">Language Features&nbsp;<a class="anchor" href="#language-features"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<h3 id="nested-namespace-definitions">Nested namespace definitions&nbsp;<a class="anchor" href="#nested-namespace-definitions"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">namespace</span> A<span style="color:#f92672">::</span>B<span style="color:#f92672">::</span>C {
+   <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#75715e">// Rather than:
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">namespace</span> A {
+    <span style="color:#66d9ef">namespace</span> B {
+        <span style="color:#66d9ef">namespace</span> C {
+            <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>        }
+    }
+}
+</code></pre></div><h3 id="structured-bindings">Structured bindings&nbsp;<a class="anchor" href="#structured-bindings"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Vector3</span>
+{
+    <span style="color:#66d9ef">float</span> X;
+    <span style="color:#66d9ef">float</span> Y;
+    <span style="color:#66d9ef">float</span> Z;
+};
+<span style="color:#66d9ef">using</span> MappingPair <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>;
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> [x, y, z] <span style="color:#f92672">=</span> Vector3{<span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">1.0f</span>};
+    std<span style="color:#f92672">::</span>map<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> mapping
+    {
+        {<span style="color:#ae81ff">1</span>, <span style="color:#e6db74">&#34;one&#34;</span>},
+        {<span style="color:#ae81ff">2</span>, <span style="color:#e6db74">&#34;two&#34;</span>}
+    };
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> [it, isInserted] <span style="color:#f92672">=</span> mapping.insert(MappingPair{<span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#34;three&#34;</span>});
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> it<span style="color:#f92672">-&gt;</span>first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> it<span style="color:#f92672">-&gt;</span>second <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&#34;</span>;
+
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> [key, value] <span style="color:#f92672">:</span> mapping)
+    {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> key <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> value <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    }
+}
+</code></pre></div><h3 id="selection-statements-with-initializer">Selection statements with initializer&nbsp;<a class="anchor" href="#selection-statements-with-initializer"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">{
+  std<span style="color:#f92672">::</span>lock_guard<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>mutex<span style="color:#f92672">&gt;</span> lk(mx);
+  <span style="color:#66d9ef">if</span> (v.empty()) v.push_back(val);
+}
+<span style="color:#75715e">// vs.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">if</span> (std<span style="color:#f92672">::</span>lock_guard<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>mutex<span style="color:#f92672">&gt;</span> lk(mx); v.empty()) {
+  v.push_back(val);
+}
+</code></pre></div><h3 id="constexpr-if">constexpr if&nbsp;<a class="anchor" href="#constexpr-if"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">constexpr</span> <span style="color:#66d9ef">bool</span> isIntegral() {
+  <span style="color:#66d9ef">if</span> <span style="color:#a6e22e">constexpr</span> (std<span style="color:#f92672">::</span>is_integral<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;::</span>value) {
+    <span style="color:#66d9ef">return</span> true;
+  } <span style="color:#66d9ef">else</span> {
+    <span style="color:#66d9ef">return</span> false;
+  }
+}
+<span style="color:#66d9ef">static_assert</span>(isIntegral<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> true);
+<span style="color:#66d9ef">static_assert</span>(isIntegral<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">char</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> true);
+<span style="color:#66d9ef">static_assert</span>(isIntegral<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">double</span><span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> false);
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">S</span> {};
+<span style="color:#66d9ef">static_assert</span>(isIntegral<span style="color:#f92672">&lt;</span>S<span style="color:#f92672">&gt;</span>() <span style="color:#f92672">==</span> false);
+</code></pre></div><h3 id="class-template-argument-deduction">Class template argument deduction&nbsp;<a class="anchor" href="#class-template-argument-deduction"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">auto</span> pair <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>pair{<span style="color:#ae81ff">1.0</span>, <span style="color:#e6db74">&#34;foo&#34;</span>}; <span style="color:#75715e">// Deduces to std::pair&lt;double, std::string&gt;;
+</span></code></pre></div><h3 id="fallthrough-nodiscard-maybe_unused-attributes">[[fallthrough]], [[nodiscard]], [[maybe_unused]] attributes&nbsp;<a class="anchor" href="#fallthrough-nodiscard-maybe_unused-attributes"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<ul>
+<li>[[fallthrough]] indicates to the compiler that falling through in a switch statement is intended behavior. This attribute may only be used in a switch statement, and must be placed before the next case/default label.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">switch</span> (n) {
+  <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">:</span> 
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">[[fallthrough]]</span>;
+  <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">2</span><span style="color:#f92672">:</span>
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">break</span>;
+  <span style="color:#66d9ef">case</span> <span style="color:#ae81ff">3</span><span style="color:#f92672">:</span>
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>    <span style="color:#a6e22e">[[fallthrough]]</span>;
+  <span style="color:#66d9ef">default</span><span style="color:#f92672">:</span>
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+</code></pre></div><ul>
+<li>[[nodiscard]] issues a warning when either a function or class has this attribute and its return value is discarded.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#66d9ef">bool</span> do_something() {
+  <span style="color:#66d9ef">return</span> is_success; <span style="color:#75715e">// true for success, false for failure
+</span><span style="color:#75715e"></span>}
+
+do_something(); <span style="color:#75715e">// warning: ignoring return value of &#39;bool do_something()&#39;,
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// declared with attribute &#39;nodiscard&#39;
+</span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">// Only issues a warning when `error_info` is returned by value.
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">[[nodiscard]]</span> <span style="color:#a6e22e">error_info</span> {
+  <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>};
+
+error_info <span style="color:#a6e22e">do_something</span>() {
+  error_info ei;
+  <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>  <span style="color:#66d9ef">return</span> ei;
+}
+
+do_something(); <span style="color:#75715e">// warning: ignoring returned value of type &#39;error_info&#39;,
+</span><span style="color:#75715e"></span>                <span style="color:#75715e">// declared with attribute &#39;nodiscard&#39;
+</span></code></pre></div><ul>
+<li>[[maybe_unused]] indicates to the compiler that a variable or parameter might be unused and is intended.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">my_callback</span>(std<span style="color:#f92672">::</span>string msg, <span style="color:#a6e22e">[[maybe_unused]]</span> <span style="color:#66d9ef">bool</span> error) {
+  <span style="color:#75715e">// Don&#39;t care if `msg` is an error message, just log it.
+</span><span style="color:#75715e"></span>  log(msg);
+}
+</code></pre></div><h2 id="library-features">Library Features&nbsp;<a class="anchor" href="#library-features"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<h3 id="stdvariant">std::variant&nbsp;<a class="anchor" href="#stdvariant"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;variant&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;type_traits&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">using</span> SettingVarT <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>variant<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>;
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SettingVisitorWithClosure</span>
+{
+<span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+    SettingVisitorWithClosure(<span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> str)
+        <span style="color:#f92672">:</span> _str(str)
+    {
+    } 
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">operator</span>()(<span style="color:#66d9ef">int</span> args)
+    {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> _str <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; integer &#34;</span> <span style="color:#f92672">&lt;&lt;</span> args <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    }
+
+    <span style="color:#66d9ef">void</span> <span style="color:#a6e22e">operator</span>()(std<span style="color:#f92672">::</span>string args)
+    {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> _str <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; string &#34;</span> <span style="color:#f92672">&lt;&lt;</span> args <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    }
+
+<span style="color:#66d9ef">private</span><span style="color:#f92672">:</span>
+    std<span style="color:#f92672">::</span>string _str <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hello&#34;</span>;
+};
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span> ()
+{ 
+    SettingVarT setting <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+
+    <span style="color:#75715e">////////////////////////////////////////////////////////////////////////////////
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Lambda std::variant visitor without closure
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>visit([](<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;&amp;</span> args)
+    {
+        <span style="color:#66d9ef">using</span> T <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>decay_t<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">decltype</span>(args)<span style="color:#f92672">&gt;</span>;
+
+        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">constexpr</span> (std<span style="color:#f92672">::</span>is_same_v<span style="color:#f92672">&lt;</span>T, <span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>)
+        {
+            std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;integer &#34;</span> <span style="color:#f92672">&lt;&lt;</span> args <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        }
+        <span style="color:#66d9ef">if</span> <span style="color:#66d9ef">constexpr</span> (std<span style="color:#f92672">::</span>is_same_v<span style="color:#f92672">&lt;</span>T, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span>)
+        {
+            std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;string&#34;</span> <span style="color:#f92672">&lt;&lt;</span> args <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        }
+    }, setting);
+
+    <span style="color:#75715e">////////////////////////////////////////////////////////////////////////////////
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Variant visitor with closure
+</span><span style="color:#75715e"></span>    SettingVisitorWithClosure closure(<span style="color:#e6db74">&#34;Hello&#34;</span>);
+    std<span style="color:#f92672">::</span>visit(std<span style="color:#f92672">::</span>move(closure), setting);
+}
+</code></pre></div><h3 id="stdoptional">std::optional&nbsp;<a class="anchor" href="#stdoptional"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>characteristics: value-type
+common use case: return value of a function that may fail.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;optional&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+std<span style="color:#f92672">::</span>optional<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> GetEvenString(<span style="color:#66d9ef">int</span> number)
+{
+    <span style="color:#66d9ef">if</span> ((number <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span>) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>)
+    {
+        <span style="color:#66d9ef">return</span> <span style="color:#e6db74">&#34;Even&#34;</span>;
+    }
+    <span style="color:#66d9ef">return</span> std<span style="color:#f92672">::</span>nullopt;
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span> ()
+{
+    std<span style="color:#f92672">::</span>optional<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> evenOpt <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>nullopt;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> evenOpt.value_or(<span style="color:#e6db74">&#34;empty&#34;</span>) <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    evenOpt <span style="color:#f92672">=</span> GetEvenString(<span style="color:#ae81ff">2</span>);
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> evenOpt.value() <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    <span style="color:#66d9ef">if</span> (<span style="color:#66d9ef">auto</span> str <span style="color:#f92672">=</span> GetEvenString(<span style="color:#ae81ff">2</span>))
+    {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;branch&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    }
+}
+</code></pre></div><h3 id="stdstring_view">std::string_view&nbsp;<a class="anchor" href="#stdstring_view"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>characteristics: value-type
+description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere. 
+common use case: Optimization when parsing.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string_view&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">constexpr</span> std<span style="color:#f92672">::</span>string_view MY_BEARD <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;beard&#34;</span>;
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span> ()
+{
+    std<span style="color:#f92672">::</span>string str { <span style="color:#e6db74">&#34;   trim me&#34;</span> };
+    std<span style="color:#f92672">::</span>string_view view { str };
+    view.remove_prefix(std<span style="color:#f92672">::</span>min(view.find_first_not_of(<span style="color:#e6db74">&#34; &#34;</span>), view.size()));
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> str <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl; <span style="color:#75715e">//  == &#34;   trim me&#34;
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> view <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl; <span style="color:#75715e">// == &#34;trim me&#34;
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> view <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span> <span style="color:#f92672">&lt;&lt;</span> MY_BEARD <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl; <span style="color:#75715e">// == &#34;trim me beard&#34;
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h3 id="stdfilesystem">std::filesystem&nbsp;<a class="anchor" href="#stdfilesystem"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;filesystem&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">namespace</span> fs <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>filesystem;
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">DisplayFileInfo</span>(<span style="color:#66d9ef">const</span> fs<span style="color:#f92672">::</span>path<span style="color:#f92672">&amp;</span> pathToShow, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> indentation, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>string<span style="color:#f92672">&amp;</span> filename)
+{
+    <span style="color:#75715e">// ...
+</span><span style="color:#75715e"></span>}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">DisplayDirTree</span>(<span style="color:#66d9ef">const</span> fs<span style="color:#f92672">::</span>path<span style="color:#f92672">&amp;</span> pathToShow, <span style="color:#66d9ef">int</span> level)
+{
+    <span style="color:#66d9ef">if</span> (fs<span style="color:#f92672">::</span>exists(pathToShow) <span style="color:#f92672">&amp;&amp;</span> fs<span style="color:#f92672">::</span>is_directory(pathToShow))
+    {
+        <span style="color:#66d9ef">auto</span> indent <span style="color:#f92672">=</span> std<span style="color:#f92672">::</span>string(level <span style="color:#f92672">*</span> <span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#39; &#39;</span>);
+        <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;</span> entry : fs<span style="color:#f92672">::</span>directory_iterator(pathToShow))
+        {
+            <span style="color:#66d9ef">auto</span> filename <span style="color:#f92672">=</span> entry.path().filename();
+            <span style="color:#66d9ef">if</span> (fs<span style="color:#f92672">::</span>is_directory(entry.status()))
+            {
+                std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> indent <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;[+] &#34;</span> <span style="color:#f92672">&lt;&lt;</span> filename <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+                DisplayDirTree(entry, level <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>);
+                std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+            }
+            <span style="color:#66d9ef">else</span> <span style="color:#66d9ef">if</span> (fs<span style="color:#f92672">::</span>is_regular_file(entry.status()))
+            {
+                DisplayFileInfo(entry, indent, filename);
+            }
+            <span style="color:#66d9ef">else</span>
+            {
+                std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> indent <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; [?]&#34;</span> <span style="color:#f92672">&lt;&lt;</span> filename <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+            }
+        }
+    }
+}
+
+<span style="color:#66d9ef">void</span> <span style="color:#a6e22e">DisplayDirectoryTree</span>(<span style="color:#66d9ef">const</span> fs<span style="color:#f92672">::</span>path<span style="color:#f92672">&amp;</span> pathToShow)
+{
+    DisplayDirTree(pathToShow, <span style="color:#ae81ff">0</span>);
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span> ()
+{
+    fs<span style="color:#f92672">::</span>path p1(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">temp&#34;</span>);
+    p1 <span style="color:#f92672">/=</span> <span style="color:#e6db74">&#34;user&#34;</span>;
+    p1 <span style="color:#f92672">/=</span> <span style="color:#e6db74">&#34;data&#34;</span>;
+
+    fs<span style="color:#f92672">::</span>path p2(<span style="color:#e6db74">&#34;C:</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">temp</span><span style="color:#ae81ff">\\</span><span style="color:#e6db74">&#34;</span>);
+    p2 <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;user&#34;</span>;
+    p2 <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34;data&#34;</span>;
+
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> p1 <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> p2 <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> currentPath <span style="color:#f92672">=</span> fs<span style="color:#f92672">::</span>temp_directory_path();
+    DisplayDirectoryTree(currentPath);
+}
+</code></pre></div><h3 id="stdbyte">std::byte&nbsp;<a class="anchor" href="#stdbyte"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>Unlike <code>char</code> and <code>unsigned char</code> <code>std::byte</code> is not a character or arithmetic type. A byte is a collection of bits that only allows bitwise operations.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;cstddef&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;bitset&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span> 
+std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;&lt;</span> (std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> os, std<span style="color:#f92672">::</span>byte b) {
+    <span style="color:#66d9ef">return</span> os <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>bitset<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">8</span><span style="color:#f92672">&gt;</span>(std<span style="color:#f92672">::</span>to_integer<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span>(b));
+}
+ 
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    std<span style="color:#f92672">::</span>byte b{<span style="color:#ae81ff">42</span>};
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;1. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    <span style="color:#75715e">// b *= 2 compilation error
+</span><span style="color:#75715e"></span>    b <span style="color:#f92672">&lt;&lt;=</span> <span style="color:#ae81ff">1</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;2. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    b <span style="color:#f92672">&gt;&gt;=</span> <span style="color:#ae81ff">1</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;3. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;4. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> (b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;5. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> (b <span style="color:#f92672">&gt;&gt;</span> <span style="color:#ae81ff">1</span>) <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    b <span style="color:#f92672">|=</span> std<span style="color:#f92672">::</span>byte{<span style="color:#ae81ff">0b11110000</span>};
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;6. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    b <span style="color:#f92672">&amp;=</span> std<span style="color:#f92672">::</span>byte{<span style="color:#ae81ff">0b11110000</span>};
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;7. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+ 
+    b <span style="color:#f92672">^=</span> std<span style="color:#f92672">::</span>byte{<span style="color:#ae81ff">0b11111111</span>};
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;8. &#34;</span> <span style="color:#f92672">&lt;&lt;</span> b <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#39;\n&#39;</span>;
+}
+
+<span style="color:#75715e">// Output:
+</span><span style="color:#75715e">// 1. 00101010
+</span><span style="color:#75715e">// 2. 01010100
+</span><span style="color:#75715e">// 3. 00101010
+</span><span style="color:#75715e">// 4. 01010100
+</span><span style="color:#75715e">// 5. 00010101
+</span><span style="color:#75715e">// 6. 11111010
+</span><span style="color:#75715e">// 7. 11110000
+</span><span style="color:#75715e">// 8. 00001111
+</span></code></pre></div><h3 id="splicing-maps-and-sets">Splicing maps and sets&nbsp;<a class="anchor" href="#splicing-maps-and-sets"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<blockquote>
+<p>You will now be able to directly move internal nodes from one node-based container directly into another container of the same type. Why is that important? Because it guarantees no memory allocation overhead, no copying of keys or values, and even no exceptions if the container’s comparison function doesn’t throw.</p>
+</blockquote>
+<p>New methods:</p>
+<ul>
+<li>std::map::extract</li>
+<li>std::map::merge</li>
+<li>std::set::extract</li>
+<li>std::set::merge</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;set&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;map&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iterator&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;string&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> K, <span style="color:#66d9ef">typename</span> V<span style="color:#f92672">&gt;</span>
+std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> <span style="color:#66d9ef">operator</span><span style="color:#f92672">&lt;&lt;</span>(std<span style="color:#f92672">::</span>ostream<span style="color:#f92672">&amp;</span> o, <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>pair<span style="color:#f92672">&lt;</span>K,V<span style="color:#f92672">&gt;&amp;</span> p)
+{
+  <span style="color:#66d9ef">return</span> o <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;{&#34;</span> <span style="color:#f92672">&lt;&lt;</span> p.first <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;:&#34;</span> <span style="color:#f92672">&lt;&lt;</span> p.second <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;}&#34;</span>;
+}
+
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">collection_type</span>;
+
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span><span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">typename</span> Collection, <span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">collection_type</span><span style="color:#f92672">&lt;</span>Collection<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;&gt;</span>
+{
+    <span style="color:#66d9ef">using</span> type <span style="color:#f92672">=</span> T;
+};
+
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> T<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">using</span> collection_type_t <span style="color:#f92672">=</span> <span style="color:#66d9ef">typename</span> collection_type<span style="color:#f92672">&lt;</span>T<span style="color:#f92672">&gt;::</span>type;
+
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span> Collection<span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">void</span> print_collection(<span style="color:#66d9ef">const</span> Collection<span style="color:#f92672">&amp;</span> c)
+{
+    std<span style="color:#f92672">::</span>ostream_iterator<span style="color:#f92672">&lt;</span>collection_type_t<span style="color:#f92672">&lt;</span>Collection<span style="color:#f92672">&gt;&gt;</span> out_it(std<span style="color:#f92672">::</span>cout, <span style="color:#e6db74">&#34; &#34;</span>);
+    std<span style="color:#f92672">::</span>copy(c.cbegin(), c.cend(), out_it);
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+}
+
+<span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">template</span> <span style="color:#f92672">&lt;</span><span style="color:#66d9ef">typename</span>...<span style="color:#f92672">&gt;</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">MapT</span>, <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">K</span>, <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">V</span><span style="color:#f92672">&gt;</span>
+<span style="color:#66d9ef">void</span> print_collection(<span style="color:#66d9ef">const</span> MapT<span style="color:#f92672">&lt;</span>K, V<span style="color:#f92672">&gt;&amp;</span> map)
+{
+    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">auto</span><span style="color:#f92672">&amp;&amp;</span> pair : map)
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> pair <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34; &#34;</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    <span style="color:#75715e">// 1. Merge two containers
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> src {<span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">5</span>};
+    std<span style="color:#f92672">::</span>set<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> dst {<span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">4</span>, <span style="color:#ae81ff">5</span>};
+    dst.merge(src);
+
+    print_collection(dst);
+    print_collection(src);
+
+    <span style="color:#75715e">// 2. Changing element node key
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>map<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span>, std<span style="color:#f92672">::</span>string<span style="color:#f92672">&gt;</span> m {{<span style="color:#ae81ff">1</span>, <span style="color:#e6db74">&#34;one&#34;</span>}, {<span style="color:#ae81ff">2</span>, <span style="color:#e6db74">&#34;two&#34;</span>}, {<span style="color:#ae81ff">3</span>, <span style="color:#e6db74">&#34;three&#34;</span>}};
+    print_collection(m);
+    <span style="color:#66d9ef">auto</span> nodeHandle <span style="color:#f92672">=</span> m.extract(<span style="color:#ae81ff">2</span>); <span style="color:#75715e">// {2, &#34;two&#34;}
+</span><span style="color:#75715e"></span>    
+    print_collection(m);
+    <span style="color:#66d9ef">if</span> (<span style="color:#f92672">!</span>nodeHandle.empty())
+    {
+        nodeHandle.key() <span style="color:#f92672">=</span> <span style="color:#ae81ff">4</span>;
+        m.insert(std<span style="color:#f92672">::</span>move(nodeHandle));
+    }
+    print_collection(m);
+}
+</code></pre></div><h3 id="parallel-algorithms">Parallel algorithms&nbsp;<a class="anchor" href="#parallel-algorithms"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span>Viewer<span style="color:#f92672">::</span>EntityHandle<span style="color:#f92672">&gt;</span> entities; <span style="color:#75715e">// Long list of entities.
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">// Sort using parallel execution policy
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>sort(std<span style="color:#f92672">::</span>execution<span style="color:#f92672">::</span>par, entities.begin(), entities.end());
+    <span style="color:#75715e">// Sort using sequential execution policy
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>sort(std<span style="color:#f92672">::</span>execution<span style="color:#f92672">::</span>seq, entities.begin(), entities.end());
+}
+</code></pre></div><h3 id="stdnot_fn">std::not_fn&nbsp;<a class="anchor" href="#stdnot_fn"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;functional&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;algorithm&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;vector&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iterator&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    <span style="color:#66d9ef">const</span> std<span style="color:#f92672">::</span>ostream_iterator<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> ostream_it{ std<span style="color:#f92672">::</span>cout, <span style="color:#e6db74">&#34; &#34;</span> };
+    <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> is_even <span style="color:#f92672">=</span> [](<span style="color:#66d9ef">const</span> <span style="color:#66d9ef">auto</span> n) { <span style="color:#66d9ef">return</span> n <span style="color:#f92672">%</span> <span style="color:#ae81ff">2</span> <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>; };
+    std<span style="color:#f92672">::</span>vector<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">int</span><span style="color:#f92672">&gt;</span> v{ <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>, <span style="color:#ae81ff">2</span>, <span style="color:#ae81ff">3</span>, <span style="color:#ae81ff">4</span> };
+
+    <span style="color:#75715e">// Print all even numbers.
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>copy_if(std<span style="color:#f92672">::</span>cbegin(v), std<span style="color:#f92672">::</span>cend(v), ostream_it, is_even); <span style="color:#75715e">// 0 2 4
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+    
+    <span style="color:#75715e">// Print all odd (not even) numbers.
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>copy_if(std<span style="color:#f92672">::</span>cbegin(v), std<span style="color:#f92672">::</span>cend(v), ostream_it, std<span style="color:#f92672">::</span>not_fn(is_even)); <span style="color:#75715e">// 1 3
+</span><span style="color:#75715e"></span>}
+</code></pre></div><h3 id="stdshared_mutex">std::shared_mutex&nbsp;<a class="anchor" href="#stdshared_mutex"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>Allows shared and exclusive access to resource.</p>
+<p>Shared mutexes are especially useful when shared data can be safely read by any number of threads simultaneously, but a thread may only write the same data when no other thread is reading or writing at the same time.</p>
+<p>// Compile with <code>-std=c++17 -pthread</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp"><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;thread&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;shared_mutex&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">int</span> value <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+std<span style="color:#f92672">::</span>shared_mutex mutex;
+
+<span style="color:#75715e">// Reads the value and sets v to that value
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">readValue</span>(<span style="color:#66d9ef">int</span><span style="color:#f92672">&amp;</span> v)
+{
+    std<span style="color:#f92672">::</span>shared_lock<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>shared_mutex<span style="color:#f92672">&gt;</span> guard(mutex);
+    <span style="color:#66d9ef">for</span> (std<span style="color:#f92672">::</span>size_t i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">3</span>; <span style="color:#f92672">++</span>i)
+    {
+        std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;read&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+        std<span style="color:#f92672">::</span>this_thread<span style="color:#f92672">::</span>sleep_for(std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>milliseconds(<span style="color:#ae81ff">200</span>));
+        v <span style="color:#f92672">=</span> value;
+    }
+}
+
+<span style="color:#75715e">// Sets value to v
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">setValue</span>(<span style="color:#66d9ef">int</span> v)
+{
+    std<span style="color:#f92672">::</span>lock_guard<span style="color:#f92672">&lt;</span>std<span style="color:#f92672">::</span>shared_mutex<span style="color:#f92672">&gt;</span> guard(mutex);
+
+    <span style="color:#75715e">// Simulate some latency
+</span><span style="color:#75715e"></span>    std<span style="color:#f92672">::</span>this_thread<span style="color:#f92672">::</span>sleep_for(std<span style="color:#f92672">::</span>chrono<span style="color:#f92672">::</span>milliseconds(<span style="color:#ae81ff">400</span>));
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;WRITE&#34;</span> <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+    value <span style="color:#f92672">=</span> v;
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+    <span style="color:#66d9ef">int</span> read1;
+    <span style="color:#66d9ef">int</span> read2;
+    <span style="color:#66d9ef">int</span> read3;
+    std<span style="color:#f92672">::</span><span style="color:#66d9ef">thread</span> t1(readValue, std<span style="color:#f92672">::</span>ref(read1));
+    std<span style="color:#f92672">::</span><span style="color:#66d9ef">thread</span> t2(readValue, std<span style="color:#f92672">::</span>ref(read2));
+    std<span style="color:#f92672">::</span><span style="color:#66d9ef">thread</span> t3(readValue, std<span style="color:#f92672">::</span>ref(read3));
+    std<span style="color:#f92672">::</span><span style="color:#66d9ef">thread</span> t4(setValue, <span style="color:#ae81ff">1</span>);
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> read1 <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> read2 <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> read3 <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> value <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>;
+}
+</code></pre></div>
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

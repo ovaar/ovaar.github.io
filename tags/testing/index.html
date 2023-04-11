@@ -62,6 +62,16 @@ if (!doNotTrack) {
       <main>
         
         <article>
+          <a href="https://ovaar.github.io/blog/practical-cppstd17/">
+            <h3>Practical cppstd 17 highlights by example</h3>
+          </a>
+          <p>Practical cppstd 17 highlights by example  Language Features Library Features  Language Features Nested namespace definitions namespace A::B::C { // ... } // Rather than: namespace A { namespace B { namespace C { // ...  } } } Structured bindings #include &lt;map&gt;#include &lt;string&gt;#include &lt;iostream&gt; struct Vector3 { float X; float Y; float Z; }; using MappingPair = std::pair&lt;int, std::string&gt;; int main() { const auto [x, y, z] = Vector3{1.</p>
+          <p>
+            <small>published on Mon, 06 Mar 2023</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/">
             <h3>Create an array of all possible variants alternatives of std::variant type</h3>
           </a>
@@ -100,18 +110,6 @@ For example a cell of a CSV file could represent multiple data types such as a s
           <p>Welcome! In this blog series I will share some of the knowledge I gained when doing performance optimizations for a project some time ago. Optimizing code for performance requires good knowledge of the fundamental concepts of computer architecture. In this first blog post I will explain about software profiling, some of the computer architecture concepts and my personal experience what worked for my and what did not. In later post(s) I will go more into detail in how to optimize code for performance.</p>
           <p>
             <small>published on Wed, 14 Oct 2020</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/">
-            <h3>Reactive testing with Gherkin, ReactiveX and asyncio</h3>
-          </a>
-          <p>Have you ever written integration test with asynchronous behavior? I have, and it has always been a struggle&hellip; CI/CD pipelines which regularly fail because of some timeout. Then, &ldquo;a wild project manager appears!&rdquo;, and starts asking questions why investigating takes so long&hellip;
- Solution: The timeout is increased to quickly solve the issue, when usually the failure is caused by regression.
- There must be some more elegant way to assert or await asynchronous calls in Behavior Driven Development (BDD) steps.</p>
-          <p>
-            <small>published on Mon, 14 Sep 2020</small>
           </p>
         </article>
         

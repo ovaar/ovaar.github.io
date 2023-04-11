@@ -5,10 +5,504 @@
     <link>https://ovaar.github.io/tags/development/</link>
     <description>Recent content in Development on Ovaar - Software engineering blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 02 Mar 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 06 Mar 2023 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ovaar.github.io/tags/development/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Practical cppstd 17 highlights by example</title>
+      <link>https://ovaar.github.io/blog/practical-cppstd17/</link>
+      <pubDate>Mon, 06 Mar 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/practical-cppstd17/</guid>
+      <description>&lt;h1 id=&#34;practical-cppstd-17-highlights-by-example&#34;&gt;Practical cppstd 17 highlights by example&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;#language-features&#34;&gt;Language Features&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;#library-features&#34;&gt;Library Features&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;language-features&#34;&gt;Language Features&lt;/h2&gt;
+&lt;h3 id=&#34;nested-namespace-definitions&#34;&gt;Nested namespace definitions&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; A&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;B&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;C {
+   &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Rather than:
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; A {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; B {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; C {
+            &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;structured-bindings&#34;&gt;Structured bindings&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;map&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Vector3&lt;/span&gt;
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; X;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; Y;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;float&lt;/span&gt; Z;
+};
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; MappingPair &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;pair&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; [x, y, z] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vector3{&lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1.0f&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; mapping
+    {
+        {&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;one&amp;#34;&lt;/span&gt;},
+        {&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;two&amp;#34;&lt;/span&gt;}
+    };
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; [it, isInserted] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mapping.insert(MappingPair{&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;three&amp;#34;&lt;/span&gt;});
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; it&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;first &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; it&lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt;second &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; [key, value] &lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; mapping)
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; key &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; value &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;selection-statements-with-initializer&#34;&gt;Selection statements with initializer&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;{
+  std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;lock_guard&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;mutex&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; lk(mx);
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (v.empty()) v.push_back(val);
+}
+&lt;span style=&#34;color:#75715e&#34;&gt;// vs.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;lock_guard&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;mutex&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; lk(mx); v.empty()) {
+  v.push_back(val);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;constexpr-if&#34;&gt;constexpr if&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; isIntegral() {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;constexpr&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_integral&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;::&lt;/span&gt;value) {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; true;
+  } &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; false;
+  }
+}
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static_assert&lt;/span&gt;(isIntegral&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; true);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static_assert&lt;/span&gt;(isIntegral&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;char&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; true);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static_assert&lt;/span&gt;(isIntegral&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;double&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; false);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;S&lt;/span&gt; {};
+&lt;span style=&#34;color:#66d9ef&#34;&gt;static_assert&lt;/span&gt;(isIntegral&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;S&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;() &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; false);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;class-template-argument-deduction&#34;&gt;Class template argument deduction&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; pair &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;pair{&lt;span style=&#34;color:#ae81ff&#34;&gt;1.0&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;foo&amp;#34;&lt;/span&gt;}; &lt;span style=&#34;color:#75715e&#34;&gt;// Deduces to std::pair&amp;lt;double, std::string&amp;gt;;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;fallthrough-nodiscard-maybe_unused-attributes&#34;&gt;[[fallthrough]], [[nodiscard]], [[maybe_unused]] attributes&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;[[fallthrough]] indicates to the compiler that falling through in a switch statement is intended behavior. This attribute may only be used in a switch statement, and must be placed before the next case/default label.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;switch&lt;/span&gt; (n) {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;case&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; 
+    &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;[[fallthrough]]&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;case&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;case&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#a6e22e&#34;&gt;[[fallthrough]]&lt;/span&gt;;
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;default&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;[[nodiscard]] issues a warning when either a function or class has this attribute and its return value is discarded.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;[[nodiscard]]&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; do_something() {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; is_success; &lt;span style=&#34;color:#75715e&#34;&gt;// true for success, false for failure
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+
+do_something(); &lt;span style=&#34;color:#75715e&#34;&gt;// warning: ignoring return value of &amp;#39;bool do_something()&amp;#39;,
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;// declared with attribute &amp;#39;nodiscard&amp;#39;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// Only issues a warning when `error_info` is returned by value.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;[[nodiscard]]&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;error_info&lt;/span&gt; {
+  &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;};
+
+error_info &lt;span style=&#34;color:#a6e22e&#34;&gt;do_something&lt;/span&gt;() {
+  error_info ei;
+  &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; ei;
+}
+
+do_something(); &lt;span style=&#34;color:#75715e&#34;&gt;// warning: ignoring returned value of type &amp;#39;error_info&amp;#39;,
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;// declared with attribute &amp;#39;nodiscard&amp;#39;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;[[maybe_unused]] indicates to the compiler that a variable or parameter might be unused and is intended.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;my_callback&lt;/span&gt;(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string msg, &lt;span style=&#34;color:#a6e22e&#34;&gt;[[maybe_unused]]&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt; error) {
+  &lt;span style=&#34;color:#75715e&#34;&gt;// Don&amp;#39;t care if `msg` is an error message, just log it.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;  log(msg);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;library-features&#34;&gt;Library Features&lt;/h2&gt;
+&lt;h3 id=&#34;stdvariant&#34;&gt;std::variant&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;variant&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;type_traits&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; SettingVarT &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;variant&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;SettingVisitorWithClosure&lt;/span&gt;
+{
+&lt;span style=&#34;color:#66d9ef&#34;&gt;public&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+    SettingVisitorWithClosure(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; str)
+        &lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt; _str(str)
+    {
+    } 
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;operator&lt;/span&gt;()(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; args)
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; _str &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; integer &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; args &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    }
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;operator&lt;/span&gt;()(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string args)
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; _str &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; string &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; args &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    }
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;private&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;:&lt;/span&gt;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string _str &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello&amp;#34;&lt;/span&gt;;
+};
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; ()
+{ 
+    SettingVarT setting &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;////////////////////////////////////////////////////////////////////////////////
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Lambda std::variant visitor without closure
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;visit([](&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; args)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; T &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;decay_t&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;decltype&lt;/span&gt;(args)&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;;
+
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_same_v&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T, &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;)
+        {
+            std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;integer &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; args &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+        }
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_same_v&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;)
+        {
+            std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;string&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; args &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+        }
+    }, setting);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;////////////////////////////////////////////////////////////////////////////////
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Variant visitor with closure
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    SettingVisitorWithClosure closure(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Hello&amp;#34;&lt;/span&gt;);
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;visit(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;move(closure), setting);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdoptional&#34;&gt;std::optional&lt;/h3&gt;
+&lt;p&gt;characteristics: value-type
+common use case: return value of a function that may fail.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;optional&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;optional&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; GetEvenString(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; number)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; ((number &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;)
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Even&amp;#34;&lt;/span&gt;;
+    }
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;nullopt;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; ()
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;optional&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; evenOpt &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;nullopt;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; evenOpt.value_or(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;empty&amp;#34;&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    evenOpt &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; GetEvenString(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;);
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; evenOpt.value() &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; str &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; GetEvenString(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;))
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;branch&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdstring_view&#34;&gt;std::string_view&lt;/h3&gt;
+&lt;p&gt;characteristics: value-type
+description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere. 
+common use case: Optimization when parsing.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string_view&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;constexpr&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string_view MY_BEARD &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;beard&amp;#34;&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; ()
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string str { &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;   trim me&amp;#34;&lt;/span&gt; };
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string_view view { str };
+    view.remove_prefix(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;min(view.find_first_not_of(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt;), view.size()));
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; str &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl; &lt;span style=&#34;color:#75715e&#34;&gt;//  == &amp;#34;   trim me&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; view &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl; &lt;span style=&#34;color:#75715e&#34;&gt;// == &amp;#34;trim me&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; view &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; MY_BEARD &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl; &lt;span style=&#34;color:#75715e&#34;&gt;// == &amp;#34;trim me beard&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdfilesystem&#34;&gt;std::filesystem&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;filesystem&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;namespace&lt;/span&gt; fs &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;filesystem;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;DisplayFileInfo&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; pathToShow, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; indentation, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; filename)
+{
+    &lt;span style=&#34;color:#75715e&#34;&gt;// ...
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;DisplayDirTree&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; pathToShow, &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; level)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;exists(pathToShow) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_directory(pathToShow))
+    {
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; indent &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string(level &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39; &amp;#39;&lt;/span&gt;);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; entry : fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;directory_iterator(pathToShow))
+        {
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; filename &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; entry.path().filename();
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_directory(entry.status()))
+            {
+                std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; indent &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;[+] &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; filename &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+                DisplayDirTree(entry, level &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;);
+                std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+            }
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;is_regular_file(entry.status()))
+            {
+                DisplayFileInfo(entry, indent, filename);
+            }
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;
+            {
+                std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; indent &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; [?]&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; filename &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+            }
+        }
+    }
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;DisplayDirectoryTree&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; pathToShow)
+{
+    DisplayDirTree(pathToShow, &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;);
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt; ()
+{
+    fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;path p1(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;temp&amp;#34;&lt;/span&gt;);
+    p1 &lt;span style=&#34;color:#f92672&#34;&gt;/=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;user&amp;#34;&lt;/span&gt;;
+    p1 &lt;span style=&#34;color:#f92672&#34;&gt;/=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;data&amp;#34;&lt;/span&gt;;
+
+    fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;path p2(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;C:&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;temp&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\\&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;);
+    p2 &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;user&amp;#34;&lt;/span&gt;;
+    p2 &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;data&amp;#34;&lt;/span&gt;;
+
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; p1 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; p2 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; currentPath &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fs&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;temp_directory_path();
+    DisplayDirectoryTree(currentPath);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdbyte&#34;&gt;std::byte&lt;/h3&gt;
+&lt;p&gt;Unlike &lt;code&gt;char&lt;/code&gt; and &lt;code&gt;unsigned char&lt;/code&gt; &lt;code&gt;std::byte&lt;/code&gt; is not a character or arithmetic type. A byte is a collection of bits that only allows bitwise operations.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;cstddef&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;bitset&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt; 
+std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;operator&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; os, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;byte b) {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; os &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;bitset&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;to_integer&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;(b));
+}
+ 
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;byte b{&lt;span style=&#34;color:#ae81ff&#34;&gt;42&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;1. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    &lt;span style=&#34;color:#75715e&#34;&gt;// b *= 2 compilation error
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;2. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;3. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;4. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; (b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;5. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; (b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    b &lt;span style=&#34;color:#f92672&#34;&gt;|=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;byte{&lt;span style=&#34;color:#ae81ff&#34;&gt;0b11110000&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;6. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;byte{&lt;span style=&#34;color:#ae81ff&#34;&gt;0b11110000&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;7. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+ 
+    b &lt;span style=&#34;color:#f92672&#34;&gt;^=&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;byte{&lt;span style=&#34;color:#ae81ff&#34;&gt;0b11111111&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;8. &amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; b &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;;
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Output:
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 1. 00101010
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 2. 01010100
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 3. 00101010
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 4. 01010100
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 5. 00010101
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 6. 11111010
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 7. 11110000
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;// 8. 00001111
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;splicing-maps-and-sets&#34;&gt;Splicing maps and sets&lt;/h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;You will now be able to directly move internal nodes from one node-based container directly into another container of the same type. Why is that important? Because it guarantees no memory allocation overhead, no copying of keys or values, and even no exceptions if the container’s comparison function doesn’t throw.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;New methods:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;std::map::extract&lt;/li&gt;
+&lt;li&gt;std::map::merge&lt;/li&gt;
+&lt;li&gt;std::set::extract&lt;/li&gt;
+&lt;li&gt;std::set::merge&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;set&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;map&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iterator&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; K, &lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; V&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;operator&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; o, &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;pair&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;K,V&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; p)
+{
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; o &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; p.first &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;:&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; p.second &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;}&amp;#34;&lt;/span&gt;;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;collection_type&lt;/span&gt;;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; Collection, &lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;collection_type&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Collection&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt;
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; type &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; T;
+};
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;using&lt;/span&gt; collection_type_t &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; collection_type&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;T&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;::&lt;/span&gt;type;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt; Collection&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; print_collection(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; Collection&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; c)
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream_iterator&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;collection_type_t&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Collection&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; out_it(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt;);
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;copy(c.cbegin(), c.cend(), out_it);
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;template&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;typename&lt;/span&gt;...&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MapT&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;K&lt;/span&gt;, &lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;V&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; print_collection(&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; MapT&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;K, V&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;amp;&lt;/span&gt; map)
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (&lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; pair : map)
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; pair &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 1. Merge two containers
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;set&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; src {&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;};
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;set&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; dst {&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt;};
+    dst.merge(src);
+
+    print_collection(dst);
+    print_collection(src);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// 2. Changing element node key
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;map&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;string&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; m {{&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;one&amp;#34;&lt;/span&gt;}, {&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;two&amp;#34;&lt;/span&gt;}, {&lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;three&amp;#34;&lt;/span&gt;}};
+    print_collection(m);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; nodeHandle &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; m.extract(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;); &lt;span style=&#34;color:#75715e&#34;&gt;// {2, &amp;#34;two&amp;#34;}
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    
+    print_collection(m);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; (&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;nodeHandle.empty())
+    {
+        nodeHandle.key() &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt;;
+        m.insert(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;move(nodeHandle));
+    }
+    print_collection(m);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;parallel-algorithms&#34;&gt;Parallel algorithms&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;algorithm&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;vector&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;vector&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Viewer&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;EntityHandle&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; entities; &lt;span style=&#34;color:#75715e&#34;&gt;// Long list of entities.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;// Sort using parallel execution policy
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;sort(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;execution&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;par, entities.begin(), entities.end());
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Sort using sequential execution policy
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;sort(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;execution&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;seq, entities.begin(), entities.end());
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdnot_fn&#34;&gt;std::not_fn&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;functional&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;algorithm&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;vector&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iterator&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ostream_iterator&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; ostream_it{ std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; &amp;#34;&lt;/span&gt; };
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; is_even &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [](&lt;span style=&#34;color:#66d9ef&#34;&gt;const&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;auto&lt;/span&gt; n) { &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; };
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;vector&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; v{ &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;4&lt;/span&gt; };
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Print all even numbers.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;copy_if(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cbegin(v), std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cend(v), ostream_it, is_even); &lt;span style=&#34;color:#75715e&#34;&gt;// 0 2 4
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+    
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Print all odd (not even) numbers.
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;copy_if(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cbegin(v), std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cend(v), ostream_it, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;not_fn(is_even)); &lt;span style=&#34;color:#75715e&#34;&gt;// 1 3
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdshared_mutex&#34;&gt;std::shared_mutex&lt;/h3&gt;
+&lt;p&gt;Allows shared and exclusive access to resource.&lt;/p&gt;
+&lt;p&gt;Shared mutexes are especially useful when shared data can be safely read by any number of threads simultaneously, but a thread may only write the same data when no other thread is reading or writing at the same time.&lt;/p&gt;
+&lt;p&gt;// Compile with &lt;code&gt;-std=c++17 -pthread&lt;/code&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;thread&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;shared_mutex&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; value &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;shared_mutex mutex;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Reads the value and sets v to that value
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;readValue&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt; v)
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;shared_lock&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;shared_mutex&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; guard(mutex);
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;size_t i &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;; i &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;3&lt;/span&gt;; &lt;span style=&#34;color:#f92672&#34;&gt;++&lt;/span&gt;i)
+    {
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;read&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+        std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;this_thread&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;sleep_for(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;milliseconds(&lt;span style=&#34;color:#ae81ff&#34;&gt;200&lt;/span&gt;));
+        v &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; value;
+    }
+}
+
+&lt;span style=&#34;color:#75715e&#34;&gt;// Sets value to v
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;void&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;setValue&lt;/span&gt;(&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; v)
+{
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;lock_guard&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;shared_mutex&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; guard(mutex);
+
+    &lt;span style=&#34;color:#75715e&#34;&gt;// Simulate some latency
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;this_thread&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;sleep_for(std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;chrono&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;milliseconds(&lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;));
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;WRITE&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;endl;
+    value &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; v;
+}
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;()
+{
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; read1;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; read2;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;int&lt;/span&gt; read3;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;thread&lt;/span&gt; t1(readValue, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ref(read1));
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;thread&lt;/span&gt; t2(readValue, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ref(read2));
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;thread&lt;/span&gt; t3(readValue, std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;ref(read3));
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;thread&lt;/span&gt; t4(setValue, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;);
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; read1 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; read2 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; read3 &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+    std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;cout &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; value &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;\n&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>Create an array of all possible variants alternatives of std::variant type</title>
