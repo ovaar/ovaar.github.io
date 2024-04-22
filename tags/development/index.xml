@@ -5,10 +5,125 @@
     <link>https://ovaar.github.io/tags/development/</link>
     <description>Recent content in Development on Ovaar - Software engineering blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 17 Nov 2023 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Apr 2024 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ovaar.github.io/tags/development/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>How to python command line arguments</title>
+      <link>https://ovaar.github.io/blog/python-how-to-command-line-arguments/</link>
+      <pubDate>Mon, 22 Apr 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/python-how-to-command-line-arguments/</guid>
+      <description>&lt;h1 id=&#34;how-to-python-command-line-arguments&#34;&gt;How to python command line arguments&lt;/h1&gt;
+&lt;p&gt;Creating tools with python is a common practice due to its ease of use and productivity. Now python already has good built-in support for parsing command-line arguments, but we can take it one step further.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take the following example where we would like to create a platform independent build script that should be able to accept the build type and an option to rebuild.&lt;/p&gt;
+&lt;p&gt;Since python3 we want to utilize the typing system as much as possible, meaning that the options the user can use as input for the commandline arguments are created from types so that if the types change the script arguments are automatically updated.&lt;/p&gt;
+&lt;p&gt;The &lt;a href=&#34;https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser&#34;&gt;ArgumentParser&lt;/a&gt; &lt;code&gt;type&lt;/code&gt; parameter accepts a function that can help us to validate and transform the input data. A very useful class is &lt;a href=&#34;https://docs.python.org/3/library/enum.html#enum.StrEnum&#34;&gt;StrEnum&lt;/a&gt; which, when inherited from, enables bidirectional conversion of string to enum. We can use this class to strictly declare which values our build_type argument accepts.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-py&#34; data-lang=&#34;py&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#!/usr/bin/env python3&lt;/span&gt;
+&lt;span style=&#34;color:#e6db74&#34;&gt;r&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Platform independent build script.
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; argparse
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; pathlib &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Path
+&lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; typing &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; Final
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; errno
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; os
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;try&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;from&lt;/span&gt; enum &lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; StrEnum
+&lt;span style=&#34;color:#66d9ef&#34;&gt;except&lt;/span&gt;:
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Exception&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Install python &amp;gt;= 3.11&amp;#34;&lt;/span&gt;)
+
+
+DEFAULT_SOLUTION_PATH: Final[Path] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Path(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;application.sln&amp;#34;&lt;/span&gt;)
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;class&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;BuildType&lt;/span&gt;(StrEnum):
+    Debug &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Debug&amp;#34;&lt;/span&gt;
+    Release &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Release&amp;#34;&lt;/span&gt;
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;to_build_type&lt;/span&gt;(arg: str) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; BuildType:
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;try&lt;/span&gt;:
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; BuildType[arg]
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;except&lt;/span&gt;:
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; argparse&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ArgumentTypeError(&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Invalid argument build_type &amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;arg&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&amp;#34;&lt;/span&gt;)
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;to_path&lt;/span&gt;(arg: str) &lt;span style=&#34;color:#f92672&#34;&gt;-&amp;gt;&lt;/span&gt; Path:
+    path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Path(arg)
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; path&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;exists():
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; path
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;FileNotFoundError&lt;/span&gt;(errno&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ENOENT, os&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;strerror(errno&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ENOENT), arg)
+
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;(solution_path: Path, build_type: BuildType, rebuild: bool):
+    print(
+        &lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;str(solution_path)&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt; build_type=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;build_type&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt; &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;rebuild&amp;#39;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; rebuild &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+    )
+
+
+parser &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; argparse&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;ArgumentParser(description&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Build my application.&amp;#34;&lt;/span&gt;)
+parser&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_argument(
+    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-b&amp;#34;&lt;/span&gt;,
+    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;--build_type&amp;#34;&lt;/span&gt;,
+    type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;to_build_type,
+    help&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Set the build type &amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;|&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;join(list(BuildType&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;_member_names_))&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#39;&lt;/span&gt;,
+    required&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;True&lt;/span&gt;,
+)
+parser&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_argument(
+    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;--rebuild&amp;#34;&lt;/span&gt;,
+    dest&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rebuild&amp;#34;&lt;/span&gt;,
+    action&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;store_true&amp;#34;&lt;/span&gt;,
+    help&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;When set a rebuild is started.&amp;#34;&lt;/span&gt;,
+)
+parser&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_argument(
+    &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;--path&amp;#34;&lt;/span&gt;,
+    dest&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;path&amp;#34;&lt;/span&gt;,
+    type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;to_path,
+    help&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;f&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;The solution file path (optional, default=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{&lt;/span&gt;str(DEFAULT_SOLUTION_PATH)&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;).&amp;#34;&lt;/span&gt;
+)
+
+args &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; parser&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;parse_args()
+build_type: BuildType &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; args&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;build_type
+solution_path: Path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; args&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;path &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; args&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;path &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt; DEFAULT_SOLUTION_PATH
+
+main(solution_path, build_type, args&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;rebuild)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;$ python build.py --help
+usage: build.py &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;-h&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; -b BUILD_TYPE &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;--rebuild&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;--path PATH&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+
+Build my application.
+
+options:
+  -h, --help            show this help message and exit
+  -b BUILD_TYPE, --build_type BUILD_TYPE
+                        Set the build type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Debug|Release&amp;#34;&lt;/span&gt;
+  --rebuild             When set a rebuild is started.
+  --path PATH           The solution file path &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;optional, default&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;application.sln&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;.
+
+
+$ python build.py --build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Release
+application.sln build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Release
+
+
+$ python build.py --build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;RelWithDebug
+build.py: error: argument -b/--build_type: Invalid argument build_type &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;RelWithDebug&amp;#39;&lt;/span&gt;!
+
+
+$ python build.py --build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Release --rebuild
+application.sln build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Release rebuild
+
+
+$ python build.py --build_type&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;Release --path&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;nopath.sln
+File &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;build.py&amp;#34;&lt;/span&gt;, line 38, in to_path
+    raise FileNotFoundError&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;errno.ENOENT, os.strerror&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;errno.ENOENT&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, arg&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+FileNotFoundError: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;Errno 2&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; No such file or directory: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;nopath.sln&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>How to call a function of a file</title>
@@ -43,6 +158,8 @@
         func(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;bound_arguments&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;args, &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;bound_arguments&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;kwargs)
     &lt;span style=&#34;color:#66d9ef&#34;&gt;except&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;TypeError&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; e: &lt;span style=&#34;color:#75715e&#34;&gt;# throws params mismatched&lt;/span&gt;
         &lt;span style=&#34;color:#66d9ef&#34;&gt;raise&lt;/span&gt; e
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
+        func(&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;args, &lt;span style=&#34;color:#f92672&#34;&gt;**&lt;/span&gt;kwargs)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Lets break the example down.
 The main expects one or more command-line arguments that are used to lookup a function by name with parameters in the current python file.
 Using &lt;code&gt;globals&lt;/code&gt; we can retrieve the Callable object to our function by name. Secondly, the optional remaining arguments are sliced from &lt;code&gt;sys.argv&lt;/code&gt; and converted to a list of &lt;code&gt;args&lt;/code&gt; and mapped to a dictionary of keyword argument conditionally if the parameter contains a &lt;code&gt;=&lt;/code&gt; in the string. Finally, using &lt;a href=&#34;https://docs.python.org/3/library/inspect.html#inspect.Signature.bind&#34;&gt;inspect.Signature.bind&lt;/a&gt; the parameters are mapped to the function. The function is called if the conditions call signature are met, otherwise it throws.&lt;/p&gt;

@@ -91,6 +91,8 @@ if (!doNotTrack) {
         func(<span style="color:#f92672">*</span>bound_arguments<span style="color:#f92672">.</span>args, <span style="color:#f92672">**</span>bound_arguments<span style="color:#f92672">.</span>kwargs)
     <span style="color:#66d9ef">except</span> <span style="color:#a6e22e">TypeError</span> <span style="color:#66d9ef">as</span> e: <span style="color:#75715e"># throws params mismatched</span>
         <span style="color:#66d9ef">raise</span> e
+    <span style="color:#66d9ef">else</span>:
+        func(<span style="color:#f92672">*</span>args, <span style="color:#f92672">**</span>kwargs)
 </code></pre></div><p>Lets break the example down.
 The main expects one or more command-line arguments that are used to lookup a function by name with parameters in the current python file.
 Using <code>globals</code> we can retrieve the Callable object to our function by name. Secondly, the optional remaining arguments are sliced from <code>sys.argv</code> and converted to a list of <code>args</code> and mapped to a dictionary of keyword argument conditionally if the parameter contains a <code>=</code> in the string. Finally, using <a href="https://docs.python.org/3/library/inspect.html#inspect.Signature.bind">inspect.Signature.bind</a> the parameters are mapped to the function. The function is called if the conditions call signature are met, otherwise it throws.</p>
