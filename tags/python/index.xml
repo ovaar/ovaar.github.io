@@ -11,12 +11,12 @@
     
     
     <item>
-      <title>How to python command line arguments</title>
-      <link>https://ovaar.github.io/blog/python-how-to-command-line-arguments/</link>
+      <title>How to typed command line arguments in python</title>
+      <link>https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/</link>
       <pubDate>Mon, 22 Apr 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/python-how-to-command-line-arguments/</guid>
-      <description>&lt;h1 id=&#34;how-to-python-command-line-arguments&#34;&gt;How to python command line arguments&lt;/h1&gt;
+      <guid>https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/</guid>
+      <description>&lt;h1 id=&#34;how-to-typed-command-line-arguments-in-python&#34;&gt;How to typed command line arguments in python&lt;/h1&gt;
 &lt;p&gt;Creating tools with python is a common practice due to its ease of use and productivity. Now python already has good built-in support for parsing command-line arguments, but we can take it one step further.&lt;/p&gt;
 &lt;p&gt;Let&amp;rsquo;s take the following example where we would like to create a platform independent build script that should be able to accept the build type and an option to rebuild.&lt;/p&gt;
 &lt;p&gt;Since python3 we want to utilize the typing system as much as possible, meaning that the options the user can use as input for the commandline arguments are created from types so that if the types change the script arguments are automatically updated.&lt;/p&gt;
@@ -126,12 +126,12 @@ FileNotFoundError: &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;Errno
     </item>
     
     <item>
-      <title>How to call a function of a file</title>
-      <link>https://ovaar.github.io/blog/python-how-to-call-function-of-file/</link>
+      <title>How to call a function of a file in python</title>
+      <link>https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/</link>
       <pubDate>Fri, 17 Nov 2023 00:00:00 +0000</pubDate>
       
-      <guid>https://ovaar.github.io/blog/python-how-to-call-function-of-file/</guid>
-      <description>&lt;h1 id=&#34;how-to-call-a-function-of-a-file&#34;&gt;How to call a function of a file&lt;/h1&gt;
+      <guid>https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/</guid>
+      <description>&lt;h1 id=&#34;how-to-call-a-function-of-a-file-in-python&#34;&gt;How to call a function of a file in python&lt;/h1&gt;
 &lt;p&gt;Take the following use case, where I have a script that I use in my Continues Integration (CI) pipeline and I would like to call a function in that file from the command-line with parameters.&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;The &lt;a href=&#34;https://docs.python.org/3/library/inspect.html&#34;&gt;inspect&lt;/a&gt; module provides several useful functions to help get information about live objects such as modules, classes, methods, functions, tracebacks, frame objects, and code objects. For example, it can help you examine the contents of a class, retrieve the source code of a method, extract and format the argument list for a function, or get all the information you need to display a detailed traceback.&lt;/p&gt;

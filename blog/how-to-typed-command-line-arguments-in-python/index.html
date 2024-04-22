@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      How to typed command line arguments in python - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>How to typed command line arguments in python</h1>
+        <p>
+          <small>published on Mon, 22 Apr 2024</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/development/">Development</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/python/">python</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <h1 id="how-to-typed-command-line-arguments-in-python">How to typed command line arguments in python</h1>
+<p>Creating tools with python is a common practice due to its ease of use and productivity. Now python already has good built-in support for parsing command-line arguments, but we can take it one step further.</p>
+<p>Let&rsquo;s take the following example where we would like to create a platform independent build script that should be able to accept the build type and an option to rebuild.</p>
+<p>Since python3 we want to utilize the typing system as much as possible, meaning that the options the user can use as input for the commandline arguments are created from types so that if the types change the script arguments are automatically updated.</p>
+<p>The <a href="https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser">ArgumentParser</a> <code>type</code> parameter accepts a function that can help us to validate and transform the input data. A very useful class is <a href="https://docs.python.org/3/library/enum.html#enum.StrEnum">StrEnum</a> which, when inherited from, enables bidirectional conversion of string to enum. We can use this class to strictly declare which values our build_type argument accepts.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-py" data-lang="py"><span style="color:#75715e">#!/usr/bin/env python3</span>
+<span style="color:#e6db74">r</span><span style="color:#e6db74">&#34;&#34;&#34;
+</span><span style="color:#e6db74">Platform independent build script.
+</span><span style="color:#e6db74">&#34;&#34;&#34;</span>
+
+<span style="color:#f92672">import</span> argparse
+<span style="color:#f92672">from</span> pathlib <span style="color:#f92672">import</span> Path
+<span style="color:#f92672">from</span> typing <span style="color:#f92672">import</span> Final
+<span style="color:#f92672">import</span> errno
+<span style="color:#f92672">import</span> os
+
+<span style="color:#66d9ef">try</span>:
+    <span style="color:#f92672">from</span> enum <span style="color:#f92672">import</span> StrEnum
+<span style="color:#66d9ef">except</span>:
+    <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">Exception</span>(<span style="color:#e6db74">&#34;Install python &gt;= 3.11&#34;</span>)
+
+
+DEFAULT_SOLUTION_PATH: Final[Path] <span style="color:#f92672">=</span> Path(<span style="color:#e6db74">&#34;application.sln&#34;</span>)
+
+
+<span style="color:#66d9ef">class</span> <span style="color:#a6e22e">BuildType</span>(StrEnum):
+    Debug <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Debug&#34;</span>
+    Release <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Release&#34;</span>
+
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_build_type</span>(arg: str) <span style="color:#f92672">-&gt;</span> BuildType:
+    <span style="color:#66d9ef">try</span>:
+        <span style="color:#66d9ef">return</span> BuildType[arg]
+    <span style="color:#66d9ef">except</span>:
+        <span style="color:#66d9ef">raise</span> argparse<span style="color:#f92672">.</span>ArgumentTypeError(<span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;Invalid argument build_type &#39;</span><span style="color:#e6db74">{</span>arg<span style="color:#e6db74">}</span><span style="color:#e6db74">&#39;&#34;</span>)
+
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">to_path</span>(arg: str) <span style="color:#f92672">-&gt;</span> Path:
+    path <span style="color:#f92672">=</span> Path(arg)
+    <span style="color:#66d9ef">if</span> path<span style="color:#f92672">.</span>exists():
+        <span style="color:#66d9ef">return</span> path
+    <span style="color:#66d9ef">else</span>:
+        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">FileNotFoundError</span>(errno<span style="color:#f92672">.</span>ENOENT, os<span style="color:#f92672">.</span>strerror(errno<span style="color:#f92672">.</span>ENOENT), arg)
+
+
+<span style="color:#66d9ef">def</span> <span style="color:#a6e22e">main</span>(solution_path: Path, build_type: BuildType, rebuild: bool):
+    print(
+        <span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{</span>str(solution_path)<span style="color:#e6db74">}</span><span style="color:#e6db74"> build_type=</span><span style="color:#e6db74">{</span>build_type<span style="color:#e6db74">}</span><span style="color:#e6db74"> </span><span style="color:#e6db74">{</span><span style="color:#e6db74">&#39;rebuild&#39;</span> <span style="color:#66d9ef">if</span> rebuild <span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;&#39;</span><span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+    )
+
+
+parser <span style="color:#f92672">=</span> argparse<span style="color:#f92672">.</span>ArgumentParser(description<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Build my application.&#34;</span>)
+parser<span style="color:#f92672">.</span>add_argument(
+    <span style="color:#e6db74">&#34;-b&#34;</span>,
+    <span style="color:#e6db74">&#34;--build_type&#34;</span>,
+    type<span style="color:#f92672">=</span>to_build_type,
+    help<span style="color:#f92672">=</span><span style="color:#e6db74">f</span><span style="color:#e6db74">&#39;Set the build type &#34;</span><span style="color:#e6db74">{</span><span style="color:#e6db74">&#34;|&#34;</span><span style="color:#f92672">.</span>join(list(BuildType<span style="color:#f92672">.</span>_member_names_))<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;&#39;</span>,
+    required<span style="color:#f92672">=</span><span style="color:#66d9ef">True</span>,
+)
+parser<span style="color:#f92672">.</span>add_argument(
+    <span style="color:#e6db74">&#34;--rebuild&#34;</span>,
+    dest<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;rebuild&#34;</span>,
+    action<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;store_true&#34;</span>,
+    help<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;When set a rebuild is started.&#34;</span>,
+)
+parser<span style="color:#f92672">.</span>add_argument(
+    <span style="color:#e6db74">&#34;--path&#34;</span>,
+    dest<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;path&#34;</span>,
+    type<span style="color:#f92672">=</span>to_path,
+    help<span style="color:#f92672">=</span><span style="color:#e6db74">f</span><span style="color:#e6db74">&#34;The solution file path (optional, default=</span><span style="color:#e6db74">{</span>str(DEFAULT_SOLUTION_PATH)<span style="color:#e6db74">}</span><span style="color:#e6db74">).&#34;</span>
+)
+
+args <span style="color:#f92672">=</span> parser<span style="color:#f92672">.</span>parse_args()
+build_type: BuildType <span style="color:#f92672">=</span> args<span style="color:#f92672">.</span>build_type
+solution_path: Path <span style="color:#f92672">=</span> args<span style="color:#f92672">.</span>path <span style="color:#66d9ef">if</span> args<span style="color:#f92672">.</span>path <span style="color:#66d9ef">else</span> DEFAULT_SOLUTION_PATH
+
+main(solution_path, build_type, args<span style="color:#f92672">.</span>rebuild)
+</code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ python build.py --help
+usage: build.py <span style="color:#f92672">[</span>-h<span style="color:#f92672">]</span> -b BUILD_TYPE <span style="color:#f92672">[</span>--rebuild<span style="color:#f92672">]</span> <span style="color:#f92672">[</span>--path PATH<span style="color:#f92672">]</span>
+
+Build my application.
+
+options:
+  -h, --help            show this help message and exit
+  -b BUILD_TYPE, --build_type BUILD_TYPE
+                        Set the build type <span style="color:#e6db74">&#34;Debug|Release&#34;</span>
+  --rebuild             When set a rebuild is started.
+  --path PATH           The solution file path <span style="color:#f92672">(</span>optional, default<span style="color:#f92672">=</span>application.sln<span style="color:#f92672">)</span>.
+
+
+$ python build.py --build_type<span style="color:#f92672">=</span>Release
+application.sln build_type<span style="color:#f92672">=</span>Release
+
+
+$ python build.py --build_type<span style="color:#f92672">=</span>RelWithDebug
+build.py: error: argument -b/--build_type: Invalid argument build_type <span style="color:#e6db74">&#39;RelWithDebug&#39;</span>!
+
+
+$ python build.py --build_type<span style="color:#f92672">=</span>Release --rebuild
+application.sln build_type<span style="color:#f92672">=</span>Release rebuild
+
+
+$ python build.py --build_type<span style="color:#f92672">=</span>Release --path<span style="color:#f92672">=</span>nopath.sln
+File <span style="color:#e6db74">&#34;build.py&#34;</span>, line 38, in to_path
+    raise FileNotFoundError<span style="color:#f92672">(</span>errno.ENOENT, os.strerror<span style="color:#f92672">(</span>errno.ENOENT<span style="color:#f92672">)</span>, arg<span style="color:#f92672">)</span>
+FileNotFoundError: <span style="color:#f92672">[</span>Errno 2<span style="color:#f92672">]</span> No such file or directory: <span style="color:#e6db74">&#39;nopath.sln&#39;</span>
+</code></pre></div>
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>
