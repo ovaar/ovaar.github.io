@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      Azure pipelines cross-platform scripts - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Azure pipelines cross-platform scripts</h1>
+        <p>
+          <small>published on Thu, 01 Aug 2024</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/devops/">Devops</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/azure-devops/">Azure Devops</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <h1 id="azure-pipelines-cross-platform-scripts">Azure pipelines cross-platform scripts</h1>
+<p>To keep things simple when setting up a CI/CD pipeline for a cross-platform application we cautiously have to consider our options for running the steps in what scripting language, because we don&rsquo;t want to end up with script that end up doing the same thing, but are for different platforms, which means extra maintenance and complexity for the maintainers.</p>
+<p>So we have to consider languages like Powershell, Bash, Zsh or Python for to run on Windows, macOS and Linux.</p>
+<h2 id="bash-or-powershell">Bash or Powershell&nbsp;<a class="anchor" href="#bash-or-powershell"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>By default Linux and macOS come with Bash installed, except for Windows, though its likely that your Windows machine already has Git Bash or Window Subsystem for Linux installed.</p>
+<p>I personally prefer Bash, because I find that the amount of text I need to write in Powershell in comparison to Bash to accomplish something is to big. Secondly, Bash is such a commonly used
+scripting language and it is so easy to find on the internet how to implement something that the productivity is much higher.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Git for Windows v2.45.2</span>
+$ bash --version
+GNU bash, version 5.2.26<span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>-release <span style="color:#f92672">(</span>x86_64-pc-msys<span style="color:#f92672">)</span>
+
+<span style="color:#75715e"># Bash on Mac Pro 2023 (12.7.5 Monterey)</span>
+$ bash --version
+GNU bash, version 3.2.57<span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>-release <span style="color:#f92672">(</span>x86_64-apple-darwin21<span style="color:#f92672">)</span>
+Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> <span style="color:#ae81ff">2007</span> Free Software Foundation, Inc.
+
+<span style="color:#75715e"># Bash on Mac Mini M1 2020 (14.5 Sonoma)</span>
+$ bash --version
+GNU bash, version 3.2.57<span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>-release <span style="color:#f92672">(</span>arm64-apple-darwin23<span style="color:#f92672">)</span>
+Copyright <span style="color:#f92672">(</span>C<span style="color:#f92672">)</span> <span style="color:#ae81ff">2007</span> Free Software Foundation, Inc.
+
+<span style="color:#75715e"># Bash on Ubuntu (20.24 Focal Fossa)</span>
+$ bash --version
+GNU bash, version 5.0.6<span style="color:#f92672">(</span>1<span style="color:#f92672">)</span>-release <span style="color:#f92672">(</span>x86_64<span style="color:#f92672">)</span>
+</code></pre></div><p>As you can see there are quite some differences in versions between platforms. Especially, macOS comes with an ancient version of Bash, which reduces the amount of modern Bash feature you can use. Depending on your needs this could be a limiting factor, though with you&rsquo;ll often find that with a limiting amount of changes you can achieve the same thing.</p>
+<h3 id="preparing-git-for-windows">Preparing Git for Windows&nbsp;<a class="anchor" href="#preparing-git-for-windows"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>To prepare the Windows agent install <a href="https://git-scm.com/download/win">Git for Windows</a> and make sure to add the <code>C:\Program Files\Git\bin</code> directory to the PATH.</p>
+<h2 id="the-pipeline-definition">The pipeline definition&nbsp;<a class="anchor" href="#the-pipeline-definition"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>Let get started by creating a <code>azure-pipelines.yml</code> file and setup our platform parameters so that the pipeline can conditionally be run. Next we&rsquo;ll utilize a <a href="https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/jobs-job-strategy?view=azure-pipelines#build-on-multiple-platforms">jobs strategy matrix</a> to start the pipeline on the selected platforms' agents.</p>
+<p>Resulting in each agent running the step &ldquo;Getting started&rdquo; that will print something to our terminal.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e"># azure-pipelines.yml</span>
+
+<span style="color:#f92672">name</span>: <span style="color:#ae81ff">cross_platform_ci</span>
+
+<span style="color:#f92672">parameters</span>:
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">windows_vs_2022</span>
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">boolean</span>
+    <span style="color:#f92672">default</span>: <span style="color:#66d9ef">true</span>
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">macOS_x86_64</span>
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">boolean</span>
+    <span style="color:#f92672">default</span>: <span style="color:#66d9ef">true</span>
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">macos_arm64</span>
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">boolean</span>
+    <span style="color:#f92672">default</span>: <span style="color:#66d9ef">true</span>
+  - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">ubuntu_x86_64</span>
+    <span style="color:#f92672">type</span>: <span style="color:#ae81ff">boolean</span>
+    <span style="color:#f92672">default</span>: <span style="color:#66d9ef">true</span>
+
+<span style="color:#f92672">pool</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">$(poolName)</span>
+
+<span style="color:#f92672">jobs</span>:
+  - <span style="color:#f92672">job</span>:
+    <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Pipeline job&#34;</span>
+    <span style="color:#f92672">strategy</span>: <span style="color:#75715e"># https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/jobs-job-strategy</span>
+      <span style="color:#f92672">matrix</span>:
+        <span style="color:#ae81ff">${{ if eq(parameters.windows_vs_2022, true) }}:</span>
+          <span style="color:#f92672">windows_vs_2022</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;windows_vs_2022&#34;</span>
+
+        <span style="color:#ae81ff">${{ if eq(parameters.macOS_x86_64, true) }}:</span>
+          <span style="color:#f92672">macOS_x86_64</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;macOS_x86_64&#34;</span>
+
+        <span style="color:#ae81ff">${{ if eq(parameters.macos_arm64, true) }}:</span>
+          <span style="color:#f92672">macOS_arm64</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;macos_arm64&#34;</span>
+
+        <span style="color:#ae81ff">${{ if eq(parameters.ubuntu_x86_64, true) }}:</span>
+          <span style="color:#f92672">ubuntu_x86_64</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;ubuntu_x86_64&#34;</span>
+
+    <span style="color:#f92672">steps</span>:
+      - <span style="color:#f92672">bash</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          set -euo pipefail
+</span><span style="color:#e6db74">          echo &#34;Hello Azure pipeline from $AGENT_OS!&#34;</span>          
+        <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Getting started&#34;</span>
+</code></pre></div><h3 id="failing-a-bash-step-in-azure-pipelines">Failing a Bash step in Azure pipelines&nbsp;<a class="anchor" href="#failing-a-bash-step-in-azure-pipelines"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>By default commands that are executed in a Bash step will not fail the pipeline if they returned a non-zero exit code, unless we explicitly tell bash to fail.</p>
+<p>We can set these options using <a href="https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html">Bash Set</a>.</p>
+<p>I personally prefer setting the following options</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">set -euo pipefail
+
+<span style="color:#75715e"># -e Exit immediately if a pipeline returns a non-zero status</span>
+<span style="color:#75715e"># -u Treat unset variables and parameters as an error when performing parameter expansion.</span>
+<span style="color:#75715e"># -o pipefail Exit if a pipe returns a non-zero status</span>
+</code></pre></div>
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

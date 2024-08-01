@@ -2,11 +2,29 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://ovaar.github.io/tags/azure-devops/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://ovaar.github.io/blog/</loc>
-    <lastmod>2024-04-22T00:00:00+00:00</lastmod>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/categories/</loc>
-    <lastmod>2024-04-22T00:00:00+00:00</lastmod>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/devops/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/categories/devops/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/</loc>
+    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/tags/development/</loc>
     <lastmod>2024-04-22T00:00:00+00:00</lastmod>
@@ -17,13 +35,7 @@
     <loc>https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/</loc>
     <lastmod>2024-04-22T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://ovaar.github.io/</loc>
-    <lastmod>2024-04-22T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://ovaar.github.io/tags/python/</loc>
-    <lastmod>2024-04-22T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/tags/</loc>
     <lastmod>2024-04-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/</loc>
@@ -85,12 +97,6 @@
   </url><url>
     <loc>https://ovaar.github.io/tags/testing/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/tags/devops/</loc>
-    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/categories/devops/</loc>
-    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/tags/docker/</loc>
     <lastmod>2020-07-28T00:00:00+00:00</lastmod>

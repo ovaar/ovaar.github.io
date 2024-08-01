@@ -5,10 +5,105 @@
     <link>https://ovaar.github.io/categories/devops/</link>
     <description>Recent content in Devops on Ovaar - Software engineering blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 28 Jul 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 01 Aug 2024 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ovaar.github.io/categories/devops/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Azure pipelines cross-platform scripts</title>
+      <link>https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/</link>
+      <pubDate>Thu, 01 Aug 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/</guid>
+      <description>&lt;h1 id=&#34;azure-pipelines-cross-platform-scripts&#34;&gt;Azure pipelines cross-platform scripts&lt;/h1&gt;
+&lt;p&gt;To keep things simple when setting up a CI/CD pipeline for a cross-platform application we cautiously have to consider our options for running the steps in what scripting language, because we don&amp;rsquo;t want to end up with script that end up doing the same thing, but are for different platforms, which means extra maintenance and complexity for the maintainers.&lt;/p&gt;
+&lt;p&gt;So we have to consider languages like Powershell, Bash, Zsh or Python for to run on Windows, macOS and Linux.&lt;/p&gt;
+&lt;h2 id=&#34;bash-or-powershell&#34;&gt;Bash or Powershell&lt;/h2&gt;
+&lt;p&gt;By default Linux and macOS come with Bash installed, except for Windows, though its likely that your Windows machine already has Git Bash or Window Subsystem for Linux installed.&lt;/p&gt;
+&lt;p&gt;I personally prefer Bash, because I find that the amount of text I need to write in Powershell in comparison to Bash to accomplish something is to big. Secondly, Bash is such a commonly used
+scripting language and it is so easy to find on the internet how to implement something that the productivity is much higher.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Git for Windows v2.45.2&lt;/span&gt;
+$ bash --version
+GNU bash, version 5.2.26&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-release &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;x86_64-pc-msys&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Bash on Mac Pro 2023 (12.7.5 Monterey)&lt;/span&gt;
+$ bash --version
+GNU bash, version 3.2.57&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-release &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;x86_64-apple-darwin21&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+Copyright &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;C&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2007&lt;/span&gt; Free Software Foundation, Inc.
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Bash on Mac Mini M1 2020 (14.5 Sonoma)&lt;/span&gt;
+$ bash --version
+GNU bash, version 3.2.57&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-release &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;arm64-apple-darwin23&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+Copyright &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;C&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;2007&lt;/span&gt; Free Software Foundation, Inc.
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Bash on Ubuntu (20.24 Focal Fossa)&lt;/span&gt;
+$ bash --version
+GNU bash, version 5.0.6&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;1&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-release &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;x86_64&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;As you can see there are quite some differences in versions between platforms. Especially, macOS comes with an ancient version of Bash, which reduces the amount of modern Bash feature you can use. Depending on your needs this could be a limiting factor, though with you&amp;rsquo;ll often find that with a limiting amount of changes you can achieve the same thing.&lt;/p&gt;
+&lt;h3 id=&#34;preparing-git-for-windows&#34;&gt;Preparing Git for Windows&lt;/h3&gt;
+&lt;p&gt;To prepare the Windows agent install &lt;a href=&#34;https://git-scm.com/download/win&#34;&gt;Git for Windows&lt;/a&gt; and make sure to add the &lt;code&gt;C:\Program Files\Git\bin&lt;/code&gt; directory to the PATH.&lt;/p&gt;
+&lt;h2 id=&#34;the-pipeline-definition&#34;&gt;The pipeline definition&lt;/h2&gt;
+&lt;p&gt;Let get started by creating a &lt;code&gt;azure-pipelines.yml&lt;/code&gt; file and setup our platform parameters so that the pipeline can conditionally be run. Next we&amp;rsquo;ll utilize a &lt;a href=&#34;https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/jobs-job-strategy?view=azure-pipelines#build-on-multiple-platforms&#34;&gt;jobs strategy matrix&lt;/a&gt; to start the pipeline on the selected platforms&#39; agents.&lt;/p&gt;
+&lt;p&gt;Resulting in each agent running the step &amp;ldquo;Getting started&amp;rdquo; that will print something to our terminal.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# azure-pipelines.yml&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;cross_platform_ci&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;parameters&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;windows_vs_2022&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;boolean&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;default&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+  - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;macOS_x86_64&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;boolean&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;default&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+  - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;macos_arm64&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;boolean&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;default&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+  - &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;ubuntu_x86_64&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;type&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;boolean&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;default&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;pool&lt;/span&gt;:
+  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(poolName)&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;job&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Pipeline job&amp;#34;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;strategy&lt;/span&gt;: &lt;span style=&#34;color:#75715e&#34;&gt;# https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/jobs-job-strategy&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;matrix&lt;/span&gt;:
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.windows_vs_2022, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;windows_vs_2022&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;windows_vs_2022&amp;#34;&lt;/span&gt;
+
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.macOS_x86_64, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;macOS_x86_64&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;macOS_x86_64&amp;#34;&lt;/span&gt;
+
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.macos_arm64, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;macOS_arm64&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;macos_arm64&amp;#34;&lt;/span&gt;
+
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.ubuntu_x86_64, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;ubuntu_x86_64&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;ubuntu_x86_64&amp;#34;&lt;/span&gt;
+
+    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+      - &lt;span style=&#34;color:#f92672&#34;&gt;bash&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          set -euo pipefail
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;Hello Azure pipeline from $AGENT_OS!&amp;#34;&lt;/span&gt;          
+        &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Getting started&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;failing-a-bash-step-in-azure-pipelines&#34;&gt;Failing a Bash step in Azure pipelines&lt;/h3&gt;
+&lt;p&gt;By default commands that are executed in a Bash step will not fail the pipeline if they returned a non-zero exit code, unless we explicitly tell bash to fail.&lt;/p&gt;
+&lt;p&gt;We can set these options using &lt;a href=&#34;https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html&#34;&gt;Bash Set&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;I personally prefer setting the following options&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;set -euo pipefail
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# -e Exit immediately if a pipeline returns a non-zero status&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# -u Treat unset variables and parameters as an error when performing parameter expansion.&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# -o pipefail Exit if a pipe returns a non-zero status&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    </item>
     
     <item>
       <title>How to setup docker credential-store</title>
