@@ -62,6 +62,18 @@ if (!doNotTrack) {
       <main>
         
         <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/">
+            <h3>Azure pipelines cross-platform python scripting</h3>
+          </a>
+          <p>Azure pipelines cross-platform python scripting This post is a continuation of Azure pipelines cross-platform scripts for Self-Hosted Azure agents. If you&rsquo;ve missed it make sure to read this first, since we&rsquo;re going to extend on it.
+I can hear you think, &ldquo;but Python is already cross platform &hellip; ?&rdquo;. Yes, though this is going to be about how to setup Azure Pipelines to invoke Python in a cross-platform way.
+The problem The problem that you&rsquo;re going to face is that not all Python installations have the same executables python and python3.</p>
+          <p>
+            <small>published on Thu, 01 Aug 2024</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/">
             <h3>Azure pipelines cross-platform scripts</h3>
           </a>
@@ -101,18 +113,6 @@ Let&rsquo;s take the following example where we would like to create a platform 
           <p>Practical cppstd 17 highlights by example  Language Features Library Features  Language Features Nested namespace definitions namespace A::B::C { // ... } // Rather than: namespace A { namespace B { namespace C { // ...  } } } Structured bindings #include &lt;map&gt;#include &lt;string&gt;#include &lt;iostream&gt; struct Vector3 { float X; float Y; float Z; }; using MappingPair = std::pair&lt;int, std::string&gt;; int main() { const auto [x, y, z] = Vector3{1.</p>
           <p>
             <small>published on Mon, 06 Mar 2023</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/">
-            <h3>Create an array of all possible variants alternatives of std::variant type</h3>
-          </a>
-          <p>The standard library std::variant is a usefull feature, introduced since c++17, to define a type that can hold multiple alternative types.
-For example a cell of a CSV file could represent multiple data types such as a string or int. Declaring a new type std::variant&lt;std::string, int&gt; allows to store one of the alternative types at the time. The std::variant internally allocates space for the largest alternative type.
- But what if you need to extract what the possible alternatives of the std::variant ?</p>
-          <p>
-            <small>published on Thu, 02 Mar 2023</small>
           </p>
         </article>
         

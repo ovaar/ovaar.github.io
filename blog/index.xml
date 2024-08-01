@@ -11,6 +11,225 @@
     
     
     <item>
+      <title>Azure pipelines cross-platform python scripting</title>
+      <link>https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/</link>
+      <pubDate>Thu, 01 Aug 2024 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/</guid>
+      <description>&lt;h1 id=&#34;azure-pipelines-cross-platform-python-scripting&#34;&gt;Azure pipelines cross-platform python scripting&lt;/h1&gt;
+&lt;p&gt;This post is a continuation of &lt;a href=&#34;https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/&#34;&gt;Azure pipelines cross-platform scripts&lt;/a&gt; for Self-Hosted Azure agents. If you&amp;rsquo;ve missed it make sure to read this first, since we&amp;rsquo;re going to extend on it.&lt;/p&gt;
+&lt;p&gt;I can hear you think, &amp;ldquo;but Python is already cross platform &amp;hellip; ?&amp;rdquo;.
+Yes, though this is going to be about how to setup Azure Pipelines to invoke Python in a cross-platform way.&lt;/p&gt;
+&lt;h2 id=&#34;the-problem&#34;&gt;The problem&lt;/h2&gt;
+&lt;p&gt;The problem that you&amp;rsquo;re going to face is that not all Python installations have the same executables &lt;code&gt;python&lt;/code&gt; and &lt;code&gt;python3&lt;/code&gt;. Some have only &lt;code&gt;python.exe&lt;/code&gt; and others only &lt;code&gt;python3.exe&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;usepythonversion&#34;&gt;UsePythonVersion&lt;/h2&gt;
+&lt;p&gt;Azure introduced &lt;a href=&#34;https://learn.microsoft.com/nl-nl/azure/devops/pipelines/tasks/reference/use-python-version-v0&#34;&gt;UsePythonVersion@0&lt;/a&gt; this module to address this specific problem. Unfortunately, this module is not truely cross-platform, since at the time of writing, it doesn&amp;rsquo;t support the ARM architecture.&lt;/p&gt;
+&lt;p&gt;So &lt;code&gt;UsePythonVersion@0&lt;/code&gt; is going to find the first &lt;code&gt;python.exe&lt;/code&gt; or &lt;code&gt;python3.exe&lt;/code&gt; in your PATH that matches the &lt;code&gt;versionSpec&lt;/code&gt; and &lt;code&gt;architecture&lt;/code&gt; and adds that location to your PATH.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;# Use Python version v0&lt;/span&gt;
+&lt;span style=&#34;color:#75715e&#34;&gt;# Use the specified version of Python from the tool cache, optionally adding it to the PATH.&lt;/span&gt;
+- &lt;span style=&#34;color:#f92672&#34;&gt;task&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;UsePythonVersion@0&lt;/span&gt;
+  &lt;span style=&#34;color:#f92672&#34;&gt;inputs&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;versionSpec: &amp;#39;3.x&amp;#39; # string. Required. Version spec. Default&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;3.&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;x.&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;#disableDownloadFromRegistry: false # boolean. Disable downloading releases from the GitHub registry. Default: false.&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;#allowUnstable: false # boolean. Optional. Use when disableDownloadFromRegistry = false. Allow downloading unstable releases. Default: false.&lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;#githubToken: # string. Optional. Use when disableDownloadFromRegistry = false. GitHub token for GitHub Actions python registry. &lt;/span&gt;
+    &lt;span style=&#34;color:#75715e&#34;&gt;#addToPath: true # boolean. Add to PATH. Default: true.&lt;/span&gt;
+  &lt;span style=&#34;color:#75715e&#34;&gt;# Advanced&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;architecture: &amp;#39;x64&amp;#39; # &amp;#39;x86&amp;#39; | &amp;#39;x64&amp;#39;. Required. Architecture. Default&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;x64.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;self-hosted-agents&#34;&gt;Self-hosted agents&lt;/h2&gt;
+&lt;p&gt;With self-hosted agents we can get even a step further, by adding one or more Python versions to the &lt;code&gt;AGENT_TOOLSDIRECTORY&lt;/code&gt;, which you can find in the &lt;code&gt;_work/_tool&lt;/code&gt; directory of the agent.&lt;/p&gt;
+&lt;p&gt;The benefits of using &lt;code&gt;AGENT_TOOLSDIRECTORY&lt;/code&gt; instead of installing Python using an installer are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;The installed Python version is decoupled from the agent&amp;rsquo;s operating system, because multiple pipelines might require different python versions.&lt;/li&gt;
+&lt;li&gt;Allow updating Python versions without any downtime while migrating between versions.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We&amp;rsquo;re going use an embedded python version and extract and configure that in the &lt;code&gt;AGENT_TOOLSDIRECTORY&lt;/code&gt;, which is going to look like&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$AGENT_TOOLSDIRECTORY/
+    Python/
+        {version number}/
+            {platform}/
+                {tool files}
+            {platform}.complete
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The following bash script automates the process of setting up the TOOLSDIRECTORY with the given architecture python and version. It avoid using the python &lt;code&gt;._pth&lt;/code&gt;, which allows for static python module paths, so we can use pip. Lastly, it creates a &lt;code&gt;python3.exe&lt;/code&gt; by copying &lt;code&gt;python.exe&lt;/code&gt;, so that we&amp;rsquo;re platform independent again.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-sh&#34; data-lang=&#34;sh&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#!/bin/bash
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;set -o errexit &lt;span style=&#34;color:#75715e&#34;&gt;# Exit immediately if a pipeline returns non-zero.&lt;/span&gt;
+
+PYTHON_VERSION&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;3.12.3&amp;#34;&lt;/span&gt;
+ARCH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x64&amp;#34;&lt;/span&gt;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;function&lt;/span&gt; usage
+&lt;span style=&#34;color:#f92672&#34;&gt;{&lt;/span&gt;
+cat &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;lt;&amp;lt;EOM
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;$(basename $0) outpath [--version version] [--arch arch]
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;Downloads the embedded python version a path designed to support Azure Self-hosted agents.
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;[-v] --version Sets the python release version (default=$PYTHON_VERSION).
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;[-a] --arch Sets the processor architecture (default=$ARCH)
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;example: $(basename $0) C:\agent\_work\_tool\Python --version 3.12.3 --arch x64
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;EOM&lt;/span&gt;
+    exit &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;}&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;[[&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$1&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;-h&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;||&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$1&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;--help&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; usage
+
+AGENT_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$1&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;; shift;
+
+&lt;span style=&#34;color:#66d9ef&#34;&gt;while&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[[&lt;/span&gt; $# -gt &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]]&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;do&lt;/span&gt;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;case&lt;/span&gt; $1 in
+        -v|--version&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+            PYTHON_VERSION&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$2&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+            shift; shift;
+        ;;
+        -a|--arch&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+            ARCH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$2&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+            shift; shift;
+        ;;
+        -*|--*&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+            echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Unknown option &lt;/span&gt;$1&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+            exit &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+        ;;
+        *&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+            shift;
+        ;;
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;esac&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;done&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; ! -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;AGENT_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Directory not found!&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; exit 1;
+&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; -z &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PYTHON_VERSION&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Invalid python version!&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; exit 1;
+&lt;span style=&#34;color:#f92672&#34;&gt;[[&lt;/span&gt; ! &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x64&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; ! &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Invalid python arch!&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; exit 1;
+
+TARGET_ARCH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;amd64&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$ARCH&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x86&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;then&lt;/span&gt; TARGET_ARCH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;win32&amp;#34;&lt;/span&gt;; &lt;span style=&#34;color:#66d9ef&#34;&gt;fi&lt;/span&gt;
+
+ARCHIVE_NAME&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;python-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PYTHON_VERSION&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;-embed-&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;TARGET_ARCH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;.zip&amp;#34;&lt;/span&gt;
+INSTALL_PATH&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;AGENT_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PYTHON_VERSION&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+
+mkdir -p &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$INSTALL_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+
+curl -o &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCHIVE_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;https://www.python.org/ftp/python/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;PYTHON_VERSION&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCHIVE_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+curl -o &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;INSTALL_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;/get-pip.py&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;https://bootstrap.pypa.io/get-pip.py&amp;#34;&lt;/span&gt; 
+
+unzip &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCHIVE_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; -d &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;INSTALL_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+
+pushd &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$INSTALL_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+
+PTH_FILE&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;$(&lt;/span&gt;find . -iname &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;*._pth&amp;#34;&lt;/span&gt; -type f -print -quit&lt;span style=&#34;color:#66d9ef&#34;&gt;)&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt; -z &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$PTH_FILE&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; echo &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;FileNotFound &amp;#34;&lt;/span&gt;python*._pth&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34; file!&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&amp;amp;&lt;/span&gt; exit 1;
+
+&lt;span style=&#34;color:#75715e&#34;&gt;# Avoid using embedded (fixed) paths to be able to use pip https://bugs.python.org/issue28245&lt;/span&gt;
+mv &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$PTH_FILE&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;$PTH_FILE&lt;span style=&#34;color:#e6db74&#34;&gt;.bak&amp;#34;&lt;/span&gt;
+
+./python.exe ./get-pip.py
+cp ./python.exe ./python3.exe
+
+popd
+
+touch &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;INSTALL_PATH&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;.complete&amp;#34;&lt;/span&gt;
+rm &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;./&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;${&lt;/span&gt;ARCHIVE_NAME&lt;span style=&#34;color:#e6db74&#34;&gt;}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;pip&#34;&gt;Pip&lt;/h2&gt;
+&lt;p&gt;Ofcourse we want to be able to consume python packages using pip, but also those we don&amp;rsquo;t want to globally install. To avoid that we want to set the new &lt;code&gt;site-packages&lt;/code&gt; directory to the pipelines current workspace directory. The advantage of that is that between builds you will always have the state as how it is in the branch.&lt;/p&gt;
+&lt;h2 id=&#34;putting-it-together&#34;&gt;Putting it together&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;ll start with the tldr version and we can break it down down below.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;pool&lt;/span&gt;:
+  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(poolName)&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;job&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Pipeline job&amp;#34;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;strategy&lt;/span&gt;:
+      &lt;span style=&#34;color:#f92672&#34;&gt;matrix&lt;/span&gt;:
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.windows_vs_2022, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;windows_vs_2022&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;windows_vs_2022&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;python.version&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;3.x&amp;#39;&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;python.arch&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x64&amp;#34;&lt;/span&gt;
+
+    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+      - &lt;span style=&#34;color:#f92672&#34;&gt;task&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;UsePythonVersion@0&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Use Python $(python.version)&amp;#39;&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;inputs&lt;/span&gt;:
+          &lt;span style=&#34;color:#f92672&#34;&gt;versionSpec&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(python.version)&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;architecture&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(python.arch)&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;disableDownloadFromRegistry&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;addToPath&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;condition&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;and(succeeded(), eq(variables[&amp;#39;Agent.OS&amp;#39;], &amp;#39;Windows_NT&amp;#39;))&lt;/span&gt;
+     
+      - &lt;span style=&#34;color:#f92672&#34;&gt;bash&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          set -euo pipefail
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          PIP_CACHE_DIR=&amp;#34;$(Pipeline.Workspace)/.pip_cache&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          SITE_PACKAGES_DIR=&amp;#34;$(Pipeline.Workspace)/.python_packages/lib/site-packages&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PYTHONUNBUFFERED]1&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PYTHONPATH;]${SITE_PACKAGES_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PIP_CACHE_DIR;]${PIP_CACHE_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=SITE_PACKAGES_DIR;]${SITE_PACKAGES_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.prependpath]${SITE_PACKAGES_DIR}/bin&amp;#34;&lt;/span&gt;          
+        &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Set env&amp;#34;&lt;/span&gt;
+
+      - &lt;span style=&#34;color:#f92672&#34;&gt;bash&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          set -euo pipefail
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          python3 -m pip install --target=&amp;#34;${SITE_PACKAGES_DIR}&amp;#34; --cache-dir=&amp;#34;${PIP_CACHE_DIR}&amp;#34; -r ./requirements.txt&lt;/span&gt;          
+        &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Pip install&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here we setup a matrix for running jobs on multiple agents by pool name. Additionally, the python version and architecture per host are configured for &lt;code&gt;UsePythonVersion@0&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;pool&lt;/span&gt;:
+  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(poolName)&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;jobs&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;job&lt;/span&gt;:
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Pipeline job&amp;#34;&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;strategy&lt;/span&gt;:
+      &lt;span style=&#34;color:#f92672&#34;&gt;matrix&lt;/span&gt;:
+        &lt;span style=&#34;color:#ae81ff&#34;&gt;${{ if eq(parameters.windows_vs_2022, true) }}:&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;windows_vs_2022&lt;/span&gt;:
+            &lt;span style=&#34;color:#f92672&#34;&gt;poolName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;windows_vs_2022&amp;#34;&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;python.version&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;3.x&amp;#39;&lt;/span&gt;
+            &lt;span style=&#34;color:#f92672&#34;&gt;python.arch&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;x64&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here we configure the &lt;code&gt;UsePythonVersion@0&lt;/code&gt; task to search for the python version in the &lt;code&gt;AGENT_TOOLSDIRECTORY&lt;/code&gt; we&amp;rsquo;ve configured earlier. For the sake this whole example only runs for Windows.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+      - &lt;span style=&#34;color:#f92672&#34;&gt;task&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;UsePythonVersion@0&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Use Python $(python.version)&amp;#39;&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;inputs&lt;/span&gt;:
+          &lt;span style=&#34;color:#f92672&#34;&gt;versionSpec&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(python.version)&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;architecture&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;$(python.arch)&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;disableDownloadFromRegistry&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;addToPath&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+          &lt;span style=&#34;color:#f92672&#34;&gt;condition&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;and(succeeded(), eq(variables[&amp;#39;Agent.OS&amp;#39;], &amp;#39;Windows_NT&amp;#39;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Now we have two seperate steps to first configure the environment variables so that the pip modules can be found by Python and finally we&amp;rsquo;ll run &lt;code&gt;pip install&lt;/code&gt;.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yml&#34; data-lang=&#34;yml&#34;&gt;      - &lt;span style=&#34;color:#f92672&#34;&gt;bash&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          set -euo pipefail
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          PIP_CACHE_DIR=&amp;#34;$(Pipeline.Workspace)/.pip_cache&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          SITE_PACKAGES_DIR=&amp;#34;$(Pipeline.Workspace)/.python_packages/lib/site-packages&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PYTHONUNBUFFERED]1&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PYTHONPATH;]${SITE_PACKAGES_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=PIP_CACHE_DIR;]${PIP_CACHE_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.setvariable variable=SITE_PACKAGES_DIR;]${SITE_PACKAGES_DIR}&amp;#34;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          echo &amp;#34;##vso[task.prependpath]${SITE_PACKAGES_DIR}/bin&amp;#34;&lt;/span&gt;          
+        &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Set env&amp;#34;&lt;/span&gt;
+
+      - &lt;span style=&#34;color:#f92672&#34;&gt;bash&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          set -euo pipefail
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;          python3 -m pip install --target=&amp;#34;${SITE_PACKAGES_DIR}&amp;#34; --cache-dir=&amp;#34;${PIP_CACHE_DIR}&amp;#34; -r ./requirements.txt&lt;/span&gt;          
+        &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;Pip install&amp;#39;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Then will then create a directory structure with the pip cache and python modules like so&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;_work/
+    {n}/
+        .pip_cache/
+        .python_packages/
+            lib/
+                site-packages/
+                    bin/
+                {all_your_packages...}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Happy coding.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Azure pipelines cross-platform scripts</title>
       <link>https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/</link>
       <pubDate>Thu, 01 Aug 2024 00:00:00 +0000</pubDate>

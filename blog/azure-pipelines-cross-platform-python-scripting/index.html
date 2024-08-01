@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      Azure pipelines cross-platform python scripting - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Azure pipelines cross-platform python scripting</h1>
+        <p>
+          <small>published on Thu, 01 Aug 2024</small>
+        </p>
+      </header>
+      <hr>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/devops/">Devops</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/azure-devops/">Azure Devops</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <h1 id="azure-pipelines-cross-platform-python-scripting">Azure pipelines cross-platform python scripting</h1>
+<p>This post is a continuation of <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/">Azure pipelines cross-platform scripts</a> for Self-Hosted Azure agents. If you&rsquo;ve missed it make sure to read this first, since we&rsquo;re going to extend on it.</p>
+<p>I can hear you think, &ldquo;but Python is already cross platform &hellip; ?&rdquo;.
+Yes, though this is going to be about how to setup Azure Pipelines to invoke Python in a cross-platform way.</p>
+<h2 id="the-problem">The problem&nbsp;<a class="anchor" href="#the-problem"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>The problem that you&rsquo;re going to face is that not all Python installations have the same executables <code>python</code> and <code>python3</code>. Some have only <code>python.exe</code> and others only <code>python3.exe</code>.</p>
+<h2 id="usepythonversion">UsePythonVersion&nbsp;<a class="anchor" href="#usepythonversion"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>Azure introduced <a href="https://learn.microsoft.com/nl-nl/azure/devops/pipelines/tasks/reference/use-python-version-v0">UsePythonVersion@0</a> this module to address this specific problem. Unfortunately, this module is not truely cross-platform, since at the time of writing, it doesn&rsquo;t support the ARM architecture.</p>
+<p>So <code>UsePythonVersion@0</code> is going to find the first <code>python.exe</code> or <code>python3.exe</code> in your PATH that matches the <code>versionSpec</code> and <code>architecture</code> and adds that location to your PATH.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#75715e"># Use Python version v0</span>
+<span style="color:#75715e"># Use the specified version of Python from the tool cache, optionally adding it to the PATH.</span>
+- <span style="color:#f92672">task</span>: <span style="color:#ae81ff">UsePythonVersion@0</span>
+  <span style="color:#f92672">inputs</span>:
+    <span style="color:#f92672">versionSpec: &#39;3.x&#39; # string. Required. Version spec. Default</span>: <span style="color:#ae81ff">3.</span><span style="color:#ae81ff">x.</span>
+    <span style="color:#75715e">#disableDownloadFromRegistry: false # boolean. Disable downloading releases from the GitHub registry. Default: false.</span>
+    <span style="color:#75715e">#allowUnstable: false # boolean. Optional. Use when disableDownloadFromRegistry = false. Allow downloading unstable releases. Default: false.</span>
+    <span style="color:#75715e">#githubToken: # string. Optional. Use when disableDownloadFromRegistry = false. GitHub token for GitHub Actions python registry. </span>
+    <span style="color:#75715e">#addToPath: true # boolean. Add to PATH. Default: true.</span>
+  <span style="color:#75715e"># Advanced</span>
+    <span style="color:#f92672">architecture: &#39;x64&#39; # &#39;x86&#39; | &#39;x64&#39;. Required. Architecture. Default</span>: <span style="color:#ae81ff">x64.</span>
+</code></pre></div><h2 id="self-hosted-agents">Self-hosted agents&nbsp;<a class="anchor" href="#self-hosted-agents"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>With self-hosted agents we can get even a step further, by adding one or more Python versions to the <code>AGENT_TOOLSDIRECTORY</code>, which you can find in the <code>_work/_tool</code> directory of the agent.</p>
+<p>The benefits of using <code>AGENT_TOOLSDIRECTORY</code> instead of installing Python using an installer are:</p>
+<ol>
+<li>The installed Python version is decoupled from the agent&rsquo;s operating system, because multiple pipelines might require different python versions.</li>
+<li>Allow updating Python versions without any downtime while migrating between versions.</li>
+</ol>
+<p>We&rsquo;re going use an embedded python version and extract and configure that in the <code>AGENT_TOOLSDIRECTORY</code>, which is going to look like</p>
+<pre tabindex="0"><code>$AGENT_TOOLSDIRECTORY/
+    Python/
+        {version number}/
+            {platform}/
+                {tool files}
+            {platform}.complete
+</code></pre><p>The following bash script automates the process of setting up the TOOLSDIRECTORY with the given architecture python and version. It avoid using the python <code>._pth</code>, which allows for static python module paths, so we can use pip. Lastly, it creates a <code>python3.exe</code> by copying <code>python.exe</code>, so that we&rsquo;re platform independent again.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e">#!/bin/bash
+</span><span style="color:#75715e"></span>set -o errexit <span style="color:#75715e"># Exit immediately if a pipeline returns non-zero.</span>
+
+PYTHON_VERSION<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;3.12.3&#34;</span>
+ARCH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;x64&#34;</span>
+
+<span style="color:#66d9ef">function</span> usage
+<span style="color:#f92672">{</span>
+cat <span style="color:#e6db74">&lt;&lt;EOM
+</span><span style="color:#e6db74">$(basename $0) outpath [--version version] [--arch arch]
+</span><span style="color:#e6db74">Downloads the embedded python version a path designed to support Azure Self-hosted agents.
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">[-v] --version Sets the python release version (default=$PYTHON_VERSION).
+</span><span style="color:#e6db74">[-a] --arch Sets the processor architecture (default=$ARCH)
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">example: $(basename $0) C:\agent\_work\_tool\Python --version 3.12.3 --arch x64
+</span><span style="color:#e6db74">EOM</span>
+    exit <span style="color:#ae81ff">0</span>
+<span style="color:#f92672">}</span>
+
+<span style="color:#f92672">[[</span> <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;-h&#34;</span> <span style="color:#f92672">||</span> <span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;--help&#34;</span> <span style="color:#f92672">]]</span> <span style="color:#f92672">&amp;&amp;</span> usage
+
+AGENT_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$1<span style="color:#e6db74">&#34;</span>; shift;
+
+<span style="color:#66d9ef">while</span> <span style="color:#f92672">[[</span> $# -gt <span style="color:#ae81ff">0</span> <span style="color:#f92672">]]</span>; <span style="color:#66d9ef">do</span>
+    <span style="color:#66d9ef">case</span> $1 in
+        -v|--version<span style="color:#f92672">)</span>
+            PYTHON_VERSION<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$2<span style="color:#e6db74">&#34;</span>
+            shift; shift;
+        ;;
+        -a|--arch<span style="color:#f92672">)</span>
+            ARCH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span>$2<span style="color:#e6db74">&#34;</span>
+            shift; shift;
+        ;;
+        -*|--*<span style="color:#f92672">)</span>
+            echo <span style="color:#e6db74">&#34;Unknown option </span>$1<span style="color:#e6db74">&#34;</span>
+            exit <span style="color:#ae81ff">1</span>
+        ;;
+        *<span style="color:#f92672">)</span>
+            shift;
+        ;;
+    <span style="color:#66d9ef">esac</span>
+<span style="color:#66d9ef">done</span>
+
+<span style="color:#f92672">[</span> ! -d <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>AGENT_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;Directory not found!&#34;</span> <span style="color:#f92672">&amp;&amp;</span> exit 1;
+<span style="color:#f92672">[</span> -z <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>PYTHON_VERSION<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;Invalid python version!&#34;</span> <span style="color:#f92672">&amp;&amp;</span> exit 1;
+<span style="color:#f92672">[[</span> ! <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>ARCH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;x64&#34;</span> <span style="color:#f92672">&amp;&amp;</span> ! <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>ARCH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;x86&#34;</span> <span style="color:#f92672">]]</span> <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;Invalid python arch!&#34;</span> <span style="color:#f92672">&amp;&amp;</span> exit 1;
+
+TARGET_ARCH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;amd64&#34;</span>
+<span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> <span style="color:#e6db74">&#34;</span>$ARCH<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;x86&#34;</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span> TARGET_ARCH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;win32&#34;</span>; <span style="color:#66d9ef">fi</span>
+
+ARCHIVE_NAME<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;python-</span><span style="color:#e6db74">${</span>PYTHON_VERSION<span style="color:#e6db74">}</span><span style="color:#e6db74">-embed-</span><span style="color:#e6db74">${</span>TARGET_ARCH<span style="color:#e6db74">}</span><span style="color:#e6db74">.zip&#34;</span>
+INSTALL_PATH<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>AGENT_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">/</span><span style="color:#e6db74">${</span>PYTHON_VERSION<span style="color:#e6db74">}</span><span style="color:#e6db74">/</span><span style="color:#e6db74">${</span>ARCH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+
+mkdir -p <span style="color:#e6db74">&#34;</span>$INSTALL_PATH<span style="color:#e6db74">&#34;</span>
+
+curl -o <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>ARCHIVE_NAME<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;https://www.python.org/ftp/python/</span><span style="color:#e6db74">${</span>PYTHON_VERSION<span style="color:#e6db74">}</span><span style="color:#e6db74">/</span><span style="color:#e6db74">${</span>ARCHIVE_NAME<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+curl -o <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>INSTALL_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">/get-pip.py&#34;</span> <span style="color:#e6db74">&#34;https://bootstrap.pypa.io/get-pip.py&#34;</span> 
+
+unzip <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>ARCHIVE_NAME<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span> -d <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>INSTALL_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+
+pushd <span style="color:#e6db74">&#34;</span>$INSTALL_PATH<span style="color:#e6db74">&#34;</span>
+
+PTH_FILE<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;</span><span style="color:#66d9ef">$(</span>find . -iname <span style="color:#e6db74">&#34;*._pth&#34;</span> -type f -print -quit<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+<span style="color:#f92672">[</span> -z <span style="color:#e6db74">&#34;</span>$PTH_FILE<span style="color:#e6db74">&#34;</span> <span style="color:#f92672">]</span> <span style="color:#f92672">&amp;&amp;</span> echo <span style="color:#e6db74">&#34;FileNotFound &#34;</span>python*._pth<span style="color:#e6db74">&#34; file!&#34;</span> <span style="color:#f92672">&amp;&amp;</span> exit 1;
+
+<span style="color:#75715e"># Avoid using embedded (fixed) paths to be able to use pip https://bugs.python.org/issue28245</span>
+mv <span style="color:#e6db74">&#34;</span>$PTH_FILE<span style="color:#e6db74">&#34;</span> <span style="color:#e6db74">&#34;</span>$PTH_FILE<span style="color:#e6db74">.bak&#34;</span>
+
+./python.exe ./get-pip.py
+cp ./python.exe ./python3.exe
+
+popd
+
+touch <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">${</span>INSTALL_PATH<span style="color:#e6db74">}</span><span style="color:#e6db74">.complete&#34;</span>
+rm <span style="color:#e6db74">&#34;./</span><span style="color:#e6db74">${</span>ARCHIVE_NAME<span style="color:#e6db74">}</span><span style="color:#e6db74">&#34;</span>
+</code></pre></div><h2 id="pip">Pip&nbsp;<a class="anchor" href="#pip"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>Ofcourse we want to be able to consume python packages using pip, but also those we don&rsquo;t want to globally install. To avoid that we want to set the new <code>site-packages</code> directory to the pipelines current workspace directory. The advantage of that is that between builds you will always have the state as how it is in the branch.</p>
+<h2 id="putting-it-together">Putting it together&nbsp;<a class="anchor" href="#putting-it-together"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>I&rsquo;ll start with the tldr version and we can break it down down below.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">pool</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">$(poolName)</span>
+
+<span style="color:#f92672">jobs</span>:
+  - <span style="color:#f92672">job</span>:
+    <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Pipeline job&#34;</span>
+    <span style="color:#f92672">strategy</span>:
+      <span style="color:#f92672">matrix</span>:
+        <span style="color:#ae81ff">${{ if eq(parameters.windows_vs_2022, true) }}:</span>
+          <span style="color:#f92672">windows_vs_2022</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;windows_vs_2022&#34;</span>
+            <span style="color:#f92672">python.version</span>: <span style="color:#e6db74">&#39;3.x&#39;</span>
+            <span style="color:#f92672">python.arch</span>: <span style="color:#e6db74">&#34;x64&#34;</span>
+
+    <span style="color:#f92672">steps</span>:
+      - <span style="color:#f92672">task</span>: <span style="color:#ae81ff">UsePythonVersion@0</span>
+          <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#39;Use Python $(python.version)&#39;</span>
+          <span style="color:#f92672">inputs</span>:
+          <span style="color:#f92672">versionSpec</span>: <span style="color:#ae81ff">$(python.version)</span>
+          <span style="color:#f92672">architecture</span>: <span style="color:#ae81ff">$(python.arch)</span>
+          <span style="color:#f92672">disableDownloadFromRegistry</span>: <span style="color:#66d9ef">true</span>
+          <span style="color:#f92672">addToPath</span>: <span style="color:#66d9ef">true</span>
+          <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">and(succeeded(), eq(variables[&#39;Agent.OS&#39;], &#39;Windows_NT&#39;))</span>
+     
+      - <span style="color:#f92672">bash</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          set -euo pipefail
+</span><span style="color:#e6db74">          PIP_CACHE_DIR=&#34;$(Pipeline.Workspace)/.pip_cache&#34;
+</span><span style="color:#e6db74">          SITE_PACKAGES_DIR=&#34;$(Pipeline.Workspace)/.python_packages/lib/site-packages&#34;
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PYTHONUNBUFFERED]1&#34;
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PYTHONPATH;]${SITE_PACKAGES_DIR}&#34;
+</span><span style="color:#e6db74">          
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PIP_CACHE_DIR;]${PIP_CACHE_DIR}&#34;
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=SITE_PACKAGES_DIR;]${SITE_PACKAGES_DIR}&#34;
+</span><span style="color:#e6db74">          
+</span><span style="color:#e6db74">          echo &#34;##vso[task.prependpath]${SITE_PACKAGES_DIR}/bin&#34;</span>          
+        <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Set env&#34;</span>
+
+      - <span style="color:#f92672">bash</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          set -euo pipefail
+</span><span style="color:#e6db74">          python3 -m pip install --target=&#34;${SITE_PACKAGES_DIR}&#34; --cache-dir=&#34;${PIP_CACHE_DIR}&#34; -r ./requirements.txt</span>          
+        <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#39;Pip install&#39;</span>
+</code></pre></div><p>Here we setup a matrix for running jobs on multiple agents by pool name. Additionally, the python version and architecture per host are configured for <code>UsePythonVersion@0</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml"><span style="color:#f92672">pool</span>:
+  <span style="color:#f92672">name</span>: <span style="color:#ae81ff">$(poolName)</span>
+
+<span style="color:#f92672">jobs</span>:
+  - <span style="color:#f92672">job</span>:
+    <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Pipeline job&#34;</span>
+    <span style="color:#f92672">strategy</span>:
+      <span style="color:#f92672">matrix</span>:
+        <span style="color:#ae81ff">${{ if eq(parameters.windows_vs_2022, true) }}:</span>
+          <span style="color:#f92672">windows_vs_2022</span>:
+            <span style="color:#f92672">poolName</span>: <span style="color:#e6db74">&#34;windows_vs_2022&#34;</span>
+            <span style="color:#f92672">python.version</span>: <span style="color:#e6db74">&#39;3.x&#39;</span>
+            <span style="color:#f92672">python.arch</span>: <span style="color:#e6db74">&#34;x64&#34;</span>
+</code></pre></div><p>Here we configure the <code>UsePythonVersion@0</code> task to search for the python version in the <code>AGENT_TOOLSDIRECTORY</code> we&rsquo;ve configured earlier. For the sake this whole example only runs for Windows.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">    <span style="color:#f92672">steps</span>:
+      - <span style="color:#f92672">task</span>: <span style="color:#ae81ff">UsePythonVersion@0</span>
+          <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#39;Use Python $(python.version)&#39;</span>
+          <span style="color:#f92672">inputs</span>:
+          <span style="color:#f92672">versionSpec</span>: <span style="color:#ae81ff">$(python.version)</span>
+          <span style="color:#f92672">architecture</span>: <span style="color:#ae81ff">$(python.arch)</span>
+          <span style="color:#f92672">disableDownloadFromRegistry</span>: <span style="color:#66d9ef">true</span>
+          <span style="color:#f92672">addToPath</span>: <span style="color:#66d9ef">true</span>
+          <span style="color:#f92672">condition</span>: <span style="color:#ae81ff">and(succeeded(), eq(variables[&#39;Agent.OS&#39;], &#39;Windows_NT&#39;))</span>
+</code></pre></div><p>Now we have two seperate steps to first configure the environment variables so that the pip modules can be found by Python and finally we&rsquo;ll run <code>pip install</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yml" data-lang="yml">      - <span style="color:#f92672">bash</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          set -euo pipefail
+</span><span style="color:#e6db74">          PIP_CACHE_DIR=&#34;$(Pipeline.Workspace)/.pip_cache&#34;
+</span><span style="color:#e6db74">          SITE_PACKAGES_DIR=&#34;$(Pipeline.Workspace)/.python_packages/lib/site-packages&#34;
+</span><span style="color:#e6db74">
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PYTHONUNBUFFERED]1&#34;
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PYTHONPATH;]${SITE_PACKAGES_DIR}&#34;
+</span><span style="color:#e6db74">          
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=PIP_CACHE_DIR;]${PIP_CACHE_DIR}&#34;
+</span><span style="color:#e6db74">          echo &#34;##vso[task.setvariable variable=SITE_PACKAGES_DIR;]${SITE_PACKAGES_DIR}&#34;
+</span><span style="color:#e6db74">          
+</span><span style="color:#e6db74">          echo &#34;##vso[task.prependpath]${SITE_PACKAGES_DIR}/bin&#34;</span>          
+        <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#34;Set env&#34;</span>
+
+      - <span style="color:#f92672">bash</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          set -euo pipefail
+</span><span style="color:#e6db74">          python3 -m pip install --target=&#34;${SITE_PACKAGES_DIR}&#34; --cache-dir=&#34;${PIP_CACHE_DIR}&#34; -r ./requirements.txt</span>          
+        <span style="color:#f92672">displayName</span>: <span style="color:#e6db74">&#39;Pip install&#39;</span>
+</code></pre></div><p>Then will then create a directory structure with the pip cache and python modules like so</p>
+<pre tabindex="0"><code>_work/
+    {n}/
+        .pip_cache/
+        .python_packages/
+            lib/
+                site-packages/
+                    bin/
+                {all_your_packages...}
+</code></pre><p>Happy coding.</p>
+
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>
