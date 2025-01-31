@@ -86,7 +86,7 @@ AttributeError: class must define a &#39;_type_&#39; attribute
 <ul>
 <li><code>python.exe</code> in <code>&lt;PYTHON_ROOT&gt;</code>.</li>
 <li>Standard libraries in <code>&lt;PYTHON_ROOT&gt;\Lib</code>.</li>
-<li><strong>DLLs (such as <strong><code>**, **</code></strong>) in <strong>``</strong>.</strong></li>
+<li>DLLs (such as <code>_ctypes.pyd</code>, <code>_queue.pyd</code>) in <code>&lt;PYTHON_ROOT&gt;\DLLs</code></li>
 </ul>
 <p>Before Python 3.8, Windows would automatically find these DLLs when needed. However, since <strong>Python 3.8</strong>, Microsoft tightened security, and Python now explicitly controls how DLLs are loaded using <a href="https://docs.python.org/3/library/os.html#os.add_dll_directory"><code>os.add_dll_directory()</code></a>.</p>
 <h3 id="2-the-azure-pipelines-environment-is-different"><strong>2. The Azure Pipelines Environment Is Different</strong>&nbsp;<a class="anchor" href="#2-the-azure-pipelines-environment-is-different"><svg class="feather">
@@ -97,7 +97,7 @@ AttributeError: class must define a &#39;_type_&#39; attribute
 <li>When you run <code>python.exe</code> manually, your user session <strong>automatically resolves</strong> the <code>DLLs</code> directory.</li>
 <li>When the Azure Pipelines agent runs Python, it <strong>starts in a minimal environment</strong>, and Windows <strong>does not find the required DLLs</strong> unless they are explicitly referenced.</li>
 </ul>
-<h3 id="3-why--fails"><strong>3. Why <strong>``</strong> Fails</strong>&nbsp;<a class="anchor" href="#3-why--fails"><svg class="feather">
+<h3 id="3-why-pip-fails"><strong>3. Why pip Fails</strong>&nbsp;<a class="anchor" href="#3-why-pip-fails"><svg class="feather">
   <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
 </svg>
 </a> </h3>
@@ -108,7 +108,7 @@ AttributeError: class must define a &#39;_type_&#39; attribute
   <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
 </svg>
 </a> </h2>
-<p>To ensure the agent can find the DLLs, **prepend the **<code>** directory to **</code> in the pipeline:</p>
+<p>To ensure the agent can find the DLLs, <strong>prepend the <code>DLLs</code> directory</strong> to the PATH in the pipeline:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">steps</span>:
   - <span style="color:#f92672">script</span>: |<span style="color:#e6db74">
 </span><span style="color:#e6db74">      PYTHON_ROOT=$(python -c &#34;import sys; import os; print(os.path.dirname(sys.executable))&#34;)
@@ -121,8 +121,7 @@ AttributeError: class must define a &#39;_type_&#39; attribute
 </svg>
 </a> </h2>
 <p>Here’s a minimal example including <code>UsePythonVersion@0</code> to ensure the correct Python version is used:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">trigger</span>:
-- <span style="color:#ae81ff">main</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">trigger</span>: <span style="color:#ae81ff">main</span>
 
 <span style="color:#f92672">pool</span>:
   <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Self-Hosted-Agent-Pool</span>

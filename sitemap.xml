@@ -23,9 +23,6 @@
     <loc>https://ovaar.github.io/categories/devops/</loc>
     <lastmod>2025-01-31T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://ovaar.github.io/tags/docker/</loc>
-    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://ovaar.github.io/categories/docker/</loc>
     <lastmod>2025-01-31T00:00:00+00:00</lastmod>
   </url><url>
@@ -122,6 +119,9 @@
     <loc>https://ovaar.github.io/tags/testing/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://ovaar.github.io/tags/docker/</loc>
+    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</loc>
     <lastmod>2020-07-28T00:00:00+00:00</lastmod>
   </url><url>
@@ -156,6 +156,6 @@
   </url><url>
     <loc>https://ovaar.github.io/blog/cpp-stack-corruption-due-to-define/</loc>
   </url><url>
-    <loc>https://ovaar.github.io/tags/ci/cd/</loc>
+    <loc>https://ovaar.github.io/tags/ci/cd-docker/</loc>
   </url>
 </urlset>
