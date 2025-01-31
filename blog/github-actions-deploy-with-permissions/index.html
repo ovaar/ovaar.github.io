@@ -114,6 +114,7 @@ if (!doNotTrack) {
 <li>Click <strong>New repository secret</strong></li>
 <li>Name it <strong><code>GH_PAT</code></strong></li>
 <li>Paste the copied token</li>
+<li>Repeat steps for each submodule repository that requires access.</li>
 </ul>
 <hr>
 <h2 id="-step-2-configure-github-actions-workflow">✅ Step 2: Configure GitHub Actions Workflow&nbsp;<a class="anchor" href="#-step-2-configure-github-actions-workflow"><svg class="feather">
@@ -139,52 +140,25 @@ if (!doNotTrack) {
         <span style="color:#f92672">with</span>:
           <span style="color:#f92672">submodules</span>: <span style="color:#66d9ef">true</span>  <span style="color:#75715e"># Ensures submodules are initialized and updated</span>
           <span style="color:#f92672">fetch-depth</span>: <span style="color:#ae81ff">0</span>
-          <span style="color:#f92672">token</span>: <span style="color:#ae81ff">${{ secrets.GH_PAT }} </span> <span style="color:#75715e"># 🔥 Ensures submodules use PAT</span>
+          <span style="color:#f92672">token</span>: <span style="color:#ae81ff">${{ secrets.GH_PAT }}</span> <span style="color:#75715e"># 🔥 Ensures submodules use PAT</span>
 
-      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Set execute permissions for deploy script</span>
-        <span style="color:#f92672">run</span>: <span style="color:#ae81ff">chmod +x ./scripts/deploy.sh</span>
+      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Submodule cleanup fix </span> <span style="color:#75715e"># Bodge for https://github.com/actions/checkout/issues/358</span>
+        <span style="color:#f92672">run</span>: |<span style="color:#e6db74">
+</span><span style="color:#e6db74">          git submodule foreach --recursive git clean -ffdx
+</span><span style="color:#e6db74">          git submodule foreach --recursive git reset --hard
+</span><span style="color:#e6db74">          git submodule foreach --recursive git checkout -f master</span>          
 
-      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Run Deploy Script</span>
-        <span style="color:#f92672">run</span>: <span style="color:#ae81ff">./scripts/deploy.sh</span>
-        <span style="color:#f92672">env</span>:
-          <span style="color:#f92672">GH_PAT</span>: <span style="color:#ae81ff">${{ secrets.GH_PAT }}</span>
+      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Run docker compose</span>
+        <span style="color:#f92672">run</span>: <span style="color:#ae81ff">docker compose up blog</span>
+      
+      - <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">stefanzweifel/git-auto-commit-action@v5</span>
+        <span style="color:#f92672">with</span>:
+          <span style="color:#f92672">repository</span>: <span style="color:#ae81ff">public</span>
+          <span style="color:#f92672">branch</span>: <span style="color:#ae81ff">master</span> <span style="color:#75715e"># Adjust if needed</span>
+          <span style="color:#f92672">push_options</span>: --<span style="color:#ae81ff">force</span>
+          <span style="color:#f92672">create_branch</span>: <span style="color:#66d9ef">false</span>
 </code></pre></div><hr>
-<h2 id="-step-3-update-the-deploysh-script">✅ Step 3: Update the <code>deploy.sh</code> Script&nbsp;<a class="anchor" href="#-step-3-update-the-deploysh-script"><svg class="feather">
-  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
-</svg>
-</a> </h2>
-<p>Modify <code>scripts/deploy.sh</code> to <strong>properly authenticate Git</strong> before pushing:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e">#!/bin/sh
-</span><span style="color:#75715e"></span>
-<span style="color:#75715e"># If a command fails then the deploy stops</span>
-set -e
-
-printf <span style="color:#e6db74">&#34;\033[0;32mDeploying updates to GitHub...\033[0m\n&#34;</span>
-
-<span style="color:#75715e"># Set up Git user</span>
-git config --global user.email <span style="color:#e6db74">&#34;github-actions[bot]@users.noreply.github.com&#34;</span>
-git config --global user.name <span style="color:#e6db74">&#34;github-actions[bot]&#34;</span>
-
-<span style="color:#75715e"># Update submodule URL to use authentication</span>
-git submodule foreach --recursive git remote set-url origin https://x-access-token:<span style="color:#e6db74">${</span>GH_PAT<span style="color:#e6db74">}</span>@github.com/ovaar/ovaar.github.io.git
-
-git submodule update --init --recursive
-
-<span style="color:#75715e"># Build the project.</span>
-docker-compose up blog  <span style="color:#75715e"># Adjust if needed</span>
-
-<span style="color:#75715e"># Commit and push main repo</span>
-git add .
-git commit -m <span style="color:#e6db74">&#34;Updating site </span><span style="color:#66d9ef">$(</span>date<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
-git push origin master
-
-<span style="color:#75715e"># Push submodule changes</span>
-cd public
-git add .
-git commit -m <span style="color:#e6db74">&#34;Deploying blog update </span><span style="color:#66d9ef">$(</span>date<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
-git push origin master
-</code></pre></div><hr>
-<h2 id="-step-4-push-and-test">✅ Step 4: Push and Test&nbsp;<a class="anchor" href="#-step-4-push-and-test"><svg class="feather">
+<h2 id="-step-3-push-and-test">✅ Step 3: Push and Test&nbsp;<a class="anchor" href="#-step-3-push-and-test"><svg class="feather">
   <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
 </svg>
 </a> </h2>
