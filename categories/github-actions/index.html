@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      GitHub Actions - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="/categories/github-actions/index.xml" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+<h1>Blog Posts</h1>
+        
+        
+        <nav class="list-nav">
+          
+          
+          <a href="/categories/github-actions/page/2/">next page</a>
+          
+        </nav>
+        
+      </header>
+      <main>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/">
+            <h3>Azure pipelines - ctypes importerror</h3>
+          </a>
+          <p>Fixing ctypes ImportError in Azure Pipelines: Missing _type_ Attribute When running pip install in an Azure Pipelines self-hosted agent, you might encounter the following error:
+File &#34;~\myselfhostedagent\_work\_tool\Python\3.12.3\x64\Lib\site-packages\pip\_vendor\platformdirs\windows.py&#34;, line 254, in _pick_get_win_folder import ctypes # noqa: PLC0415 ^^^^^^^^^^^^^ File &#34;ctypes\__init__.py&#34;, line 157, in &lt;module&gt; AttributeError: class must define a &#39;_type_&#39; attribute Interestingly, if you manually execute pip install using the same python.exe, it works fine. However, when executed within the Azure Pipelines agent, it fails.</p>
+          <p>
+            <small>published on Fri, 31 Jan 2025</small>
+          </p>
+        </article>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/">
+            <h3>Azure pipelines cross-platform python scripting</h3>
+          </a>
+          <p>Azure pipelines cross-platform python scripting This post is a continuation of Azure pipelines cross-platform scripts for Self-Hosted Azure agents. If you&rsquo;ve missed it make sure to read this first, since we&rsquo;re going to extend on it.
+I can hear you think, &ldquo;but Python is already cross platform &hellip; ?&rdquo;. Yes, though this is going to be about how to setup Azure Pipelines to invoke Python in a cross-platform way.
+The problem The problem that you&rsquo;re going to face is that not all Python installations have the same executables python and python3.</p>
+          <p>
+            <small>published on Thu, 01 Aug 2024</small>
+          </p>
+        </article>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/">
+            <h3>Azure pipelines cross-platform scripts</h3>
+          </a>
+          <p>Azure pipelines cross-platform scripts To keep things simple when setting up a CI/CD pipeline for a cross-platform application we cautiously have to consider our options for running the steps in what scripting language, because we don&rsquo;t want to end up with scripts that do the same thing functionally, but are different for each platform, which means extra maintenance and complexity for the maintainers.
+So we have to consider languages like Powershell, Bash, Zsh or Python for to run on Windows, macOS and Linux.</p>
+          <p>
+            <small>published on Thu, 01 Aug 2024</small>
+          </p>
+        </article>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/">
+            <h3>How to typed command line arguments in python</h3>
+          </a>
+          <p>How to typed command line arguments in python Creating tools with python is a common practice due to its ease of use and productivity. Now python already has good built-in support for parsing command-line arguments, but we can take it one step further.
+Let&rsquo;s take the following example where we would like to create a platform independent build script that should be able to accept the build type and an option to rebuild.</p>
+          <p>
+            <small>published on Mon, 22 Apr 2024</small>
+          </p>
+        </article>
+        
+        <article>
+          <a href="https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/">
+            <h3>How to call a function of a file in python</h3>
+          </a>
+          <p>How to call a function of a file in python Take the following use case, where I have a script that I use in my Continues Integration (CI) pipeline and I would like to call a function in that file from the command-line with parameters.
+ The inspect module provides several useful functions to help get information about live objects such as modules, classes, methods, functions, tracebacks, frame objects, and code objects.</p>
+          <p>
+            <small>published on Fri, 17 Nov 2023</small>
+          </p>
+        </article>
+        
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

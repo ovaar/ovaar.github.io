@@ -384,7 +384,7 @@ std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;optional&lt;span sty
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdstring_view&#34;&gt;std::string_view&lt;/h3&gt;
 &lt;p&gt;characteristics: value-type
-description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere. 
+description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere.
 common use case: Optimization when parsing.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string_view&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
@@ -817,7 +817,7 @@ lipo -archs &amp;lt;libname&amp;gt;.dylib
 &lt;h1 id=&#34;development-phase&#34;&gt;Development phase&lt;/h1&gt;
 &lt;p&gt;After preparing drawings and double-checking the measurements I got help from a friendly neighbour, who had all the professional tools, to cut wood. I soft grinded the wood for a smooth finish and applied &lt;a href=&#34;https://www.polyvine.be/&#34;&gt;Polyvine verniswas&lt;/a&gt; to darken the wood, which gives the old-wood-looks.&lt;/p&gt;
 &lt;p&gt;While I was shopping at a hardware store I found these thin metal interlocking connectors, which are great to mount the mirror close on to the wall. Normally, such brackets are used to mount regular mirrors on the wall. To be able to use them for my mirror I drilled some holes through the brackets and mounted them at the back of the wooden frame with some philips screws.&lt;/p&gt;
-&lt;p&gt;23 April 2019 I started and developing the frontend using TypeScript and &lt;a href=&#34;https://nuxtjs.org/&#34;&gt;Nuxt.js&lt;/a&gt;, a based Vue.js frontend framework. 
+&lt;p&gt;23 April 2019 I started and developing the frontend using TypeScript and &lt;a href=&#34;https://nuxtjs.org/&#34;&gt;Nuxt.js&lt;/a&gt;, a based Vue.js frontend framework.
 Using &lt;a href=&#34;https://dietpi.com/&#34;&gt;DietPi&lt;/a&gt; as the Linux image allowed me to easily install dependencies, do backups and receive updates with minimal effort.&lt;/p&gt;
 &lt;p&gt;To reduce the software project scope, I decided to include only the following features:&lt;/p&gt;
 &lt;ul&gt;

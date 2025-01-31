@@ -3,30 +3,51 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://ovaar.github.io/tags/azure-devops/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/blog/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/categories/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/blog/github-actions-deploy-with-permissions/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/devops/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/categories/devops/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/docker/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/categories/docker/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/github-actions/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/categories/github-actions/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/submodules/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/</loc>
+    <lastmod>2025-01-31T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/</loc>
     <lastmod>2024-08-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/blog/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/categories/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/tags/devops/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/categories/devops/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/</loc>
-    <lastmod>2024-08-01T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://ovaar.github.io/tags/</loc>
     <lastmod>2024-08-01T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://ovaar.github.io/tags/development/</loc>
@@ -101,9 +122,6 @@
     <loc>https://ovaar.github.io/tags/testing/</loc>
     <lastmod>2020-09-14T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://ovaar.github.io/tags/docker/</loc>
-    <lastmod>2020-07-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</loc>
     <lastmod>2020-07-28T00:00:00+00:00</lastmod>
   </url><url>
@@ -137,5 +155,7 @@
     <loc>https://ovaar.github.io/blog/csharp-performance-_2/</loc>
   </url><url>
     <loc>https://ovaar.github.io/blog/cpp-stack-corruption-due-to-define/</loc>
+  </url><url>
+    <loc>https://ovaar.github.io/tags/ci/cd/</loc>
   </url>
 </urlset>

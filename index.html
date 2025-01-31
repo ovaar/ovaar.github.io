@@ -74,6 +74,17 @@ if (!doNotTrack) {
         </section>
         
         <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/">
+            <h3>Azure pipelines - ctypes importerror</h3>
+          </a>
+          <p>Fixing ctypes ImportError in Azure Pipelines: Missing _type_ Attribute When running pip install in an Azure Pipelines self-hosted agent, you might encounter the following error:
+File &#34;~\myselfhostedagent\_work\_tool\Python\3.12.3\x64\Lib\site-packages\pip\_vendor\platformdirs\windows.py&#34;, line 254, in _pick_get_win_folder import ctypes # noqa: PLC0415 ^^^^^^^^^^^^^ File &#34;ctypes\__init__.py&#34;, line 157, in &lt;module&gt; AttributeError: class must define a &#39;_type_&#39; attribute Interestingly, if you manually execute pip install using the same python.exe, it works fine. However, when executed within the Azure Pipelines agent, it fails.</p>
+          <p>
+            <small>published on Fri, 31 Jan 2025</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/">
             <h3>Azure pipelines cross-platform python scripting</h3>
           </a>
@@ -93,17 +104,6 @@ The problem The problem that you&rsquo;re going to face is that not all Python i
 So we have to consider languages like Powershell, Bash, Zsh or Python for to run on Windows, macOS and Linux.</p>
           <p>
             <small>published on Thu, 01 Aug 2024</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/">
-            <h3>How to typed command line arguments in python</h3>
-          </a>
-          <p>How to typed command line arguments in python Creating tools with python is a common practice due to its ease of use and productivity. Now python already has good built-in support for parsing command-line arguments, but we can take it one step further.
-Let&rsquo;s take the following example where we would like to create a platform independent build script that should be able to accept the build type and an option to rebuild.</p>
-          <p>
-            <small>published on Mon, 22 Apr 2024</small>
           </p>
         </article>
         

@@ -5,10 +5,99 @@
     <link>https://ovaar.github.io/</link>
     <description>Recent content on Ovaar - Software engineering blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 01 Aug 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 31 Jan 2025 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://ovaar.github.io/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Azure pipelines - ctypes importerror</title>
+      <link>https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/</link>
+      <pubDate>Fri, 31 Jan 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/</guid>
+      <description>&lt;h1 id=&#34;fixing-ctypes-importerror-in-azure-pipelines-missing-_type_-attribute&#34;&gt;Fixing &lt;code&gt;ctypes&lt;/code&gt; ImportError in Azure Pipelines: Missing &lt;code&gt;_type_&lt;/code&gt; Attribute&lt;/h1&gt;
+&lt;p&gt;When running &lt;code&gt;pip install&lt;/code&gt; in an Azure Pipelines self-hosted agent, you might encounter the following error:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-plaintext&#34; data-lang=&#34;plaintext&#34;&gt;File &amp;#34;~\myselfhostedagent\_work\_tool\Python\3.12.3\x64\Lib\site-packages\pip\_vendor\platformdirs\windows.py&amp;#34;, line 254, in _pick_get_win_folder
+    import ctypes  # noqa: PLC0415
+    ^^^^^^^^^^^^^
+  File &amp;#34;ctypes\__init__.py&amp;#34;, line 157, in &amp;lt;module&amp;gt;
+AttributeError: class must define a &amp;#39;_type_&amp;#39; attribute
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Interestingly, if you manually execute &lt;code&gt;pip install&lt;/code&gt; using the same &lt;code&gt;python.exe&lt;/code&gt;, it works fine. However, when executed within the Azure Pipelines agent, it fails.&lt;/p&gt;
+&lt;p&gt;In this post, we&amp;rsquo;ll explore why this happens and how to fix it.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-why-does-this-happen&#34;&gt;🚨 &lt;strong&gt;Why Does This Happen?&lt;/strong&gt;&lt;/h2&gt;
+&lt;h3 id=&#34;1-pythons-dll-handling-in-windows&#34;&gt;&lt;strong&gt;1. Python’s DLL Handling in Windows&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;A typical Python installation on Windows consists of:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;python.exe&lt;/code&gt; in &lt;code&gt;&amp;lt;PYTHON_ROOT&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Standard libraries in &lt;code&gt;&amp;lt;PYTHON_ROOT&amp;gt;\Lib&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;DLLs (such as &lt;strong&gt;&lt;code&gt;**, **&lt;/code&gt;&lt;/strong&gt;) in &lt;strong&gt;``&lt;/strong&gt;.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Before Python 3.8, Windows would automatically find these DLLs when needed. However, since &lt;strong&gt;Python 3.8&lt;/strong&gt;, Microsoft tightened security, and Python now explicitly controls how DLLs are loaded using &lt;a href=&#34;https://docs.python.org/3/library/os.html#os.add_dll_directory&#34;&gt;&lt;code&gt;os.add_dll_directory()&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+&lt;h3 id=&#34;2-the-azure-pipelines-environment-is-different&#34;&gt;&lt;strong&gt;2. The Azure Pipelines Environment Is Different&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;When you run &lt;code&gt;python.exe&lt;/code&gt; manually, your user session &lt;strong&gt;automatically resolves&lt;/strong&gt; the &lt;code&gt;DLLs&lt;/code&gt; directory.&lt;/li&gt;
+&lt;li&gt;When the Azure Pipelines agent runs Python, it &lt;strong&gt;starts in a minimal environment&lt;/strong&gt;, and Windows &lt;strong&gt;does not find the required DLLs&lt;/strong&gt; unless they are explicitly referenced.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;3-why--fails&#34;&gt;&lt;strong&gt;3. Why &lt;strong&gt;``&lt;/strong&gt; Fails&lt;/strong&gt;&lt;/h3&gt;
+&lt;p&gt;The &lt;code&gt;ctypes&lt;/code&gt; module relies on system DLLs to function. Since the Python DLLs directory is not in &lt;code&gt;PATH&lt;/code&gt;, Windows fails to load necessary components, resulting in:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-plaintext&#34; data-lang=&#34;plaintext&#34;&gt;AttributeError: class must define a &amp;#39;_type_&amp;#39; attribute
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;-how-to-fix-it&#34;&gt;✅ &lt;strong&gt;How to Fix It&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;To ensure the agent can find the DLLs, **prepend the **&lt;code&gt;** directory to **&lt;/code&gt; in the pipeline:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      PYTHON_ROOT=$(python -c &amp;#34;import sys; import os; print(os.path.dirname(sys.executable))&amp;#34;)
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      echo &amp;#34;##vso[task.prependpath]${PYTHON_ROOT}/DLLs&amp;#34;&lt;/span&gt;      
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Fix Python DLL Path&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This tells Windows to search Python’s &lt;code&gt;DLLs&lt;/code&gt; directory when loading system dependencies.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-minimal-azure-pipelines-yaml-file&#34;&gt;🔧 &lt;strong&gt;Minimal Azure Pipelines YAML File&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Here’s a minimal example including &lt;code&gt;UsePythonVersion@0&lt;/code&gt; to ensure the correct Python version is used:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;trigger&lt;/span&gt;:
+- &lt;span style=&#34;color:#ae81ff&#34;&gt;main&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;pool&lt;/span&gt;:
+  &lt;span style=&#34;color:#f92672&#34;&gt;name&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;Self-Hosted-Agent-Pool&lt;/span&gt;
+
+&lt;span style=&#34;color:#f92672&#34;&gt;steps&lt;/span&gt;:
+  - &lt;span style=&#34;color:#f92672&#34;&gt;task&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;UsePythonVersion@0&lt;/span&gt;
+    &lt;span style=&#34;color:#f92672&#34;&gt;inputs&lt;/span&gt;:
+      &lt;span style=&#34;color:#f92672&#34;&gt;versionSpec&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;3.12&amp;#39;&lt;/span&gt;
+      &lt;span style=&#34;color:#f92672&#34;&gt;addToPath&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;true&lt;/span&gt;
+
+  - &lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      PYTHON_ROOT=$(python -c &amp;#34;import sys; import os; print(os.path.dirname(sys.executable))&amp;#34;)
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      echo &amp;#34;##vso[task.prependpath]${PYTHON_ROOT}/DLLs&amp;#34;&lt;/span&gt;      
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Fix Python DLL Path&amp;#34;&lt;/span&gt;
+
+  - &lt;span style=&#34;color:#f92672&#34;&gt;script&lt;/span&gt;: |&lt;span style=&#34;color:#e6db74&#34;&gt;
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      python -m pip install --upgrade pip
+&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;      python -m pip install -r requirements.txt&lt;/span&gt;      
+    &lt;span style=&#34;color:#f92672&#34;&gt;displayName&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Install Dependencies&amp;#34;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h2 id=&#34;-alternative-use-&#34;&gt;📌 **Alternative: Use **``&lt;/h2&gt;
+&lt;p&gt;If you prefer not to modify &lt;code&gt;PATH&lt;/code&gt;, you can explicitly set the DLL directory inside your Python script before using &lt;code&gt;ctypes&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; os
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; sys
+
+dll_path &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; os&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;join(os&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;path&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;dirname(sys&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;executable), &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;DLLs&amp;#34;&lt;/span&gt;)
+os&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;add_dll_directory(dll_path)
+
+&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; ctypes  &lt;span style=&#34;color:#75715e&#34;&gt;# This should now work correctly&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;However, setting &lt;code&gt;PATH&lt;/code&gt; in the pipeline is a more universal fix, ensuring all Python processes in the build agent work without modification.&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;-conclusion&#34;&gt;🎯 &lt;strong&gt;Conclusion&lt;/strong&gt;&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Why does this happen?&lt;/strong&gt; Windows no longer automatically searches Python’s &lt;code&gt;DLLs&lt;/code&gt; folder.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Why only in Azure Pipelines?&lt;/strong&gt; The agent runs with a minimal environment that lacks the required paths.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;How to fix it?&lt;/strong&gt; Prepend the &lt;code&gt;DLLs&lt;/code&gt; directory to &lt;code&gt;PATH&lt;/code&gt; in the pipeline or use &lt;code&gt;os.add_dll_directory()&lt;/code&gt; in Python scripts.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;By applying this fix, you can prevent &lt;code&gt;pip install&lt;/code&gt; and &lt;code&gt;ctypes&lt;/code&gt;-related failures in your Azure Pipelines self-hosted agent.&lt;/p&gt;
+&lt;p&gt;Happy coding! 🚀&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Azure pipelines cross-platform python scripting</title>
@@ -698,7 +787,7 @@ std&lt;span style=&#34;color:#f92672&#34;&gt;::&lt;/span&gt;optional&lt;span sty
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;stdstring_view&#34;&gt;std::string_view&lt;/h3&gt;
 &lt;p&gt;characteristics: value-type
-description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere. 
+description: Unlike std::string, which keeps its own copy of the string, std::string_view provides a view of a string that is defined elsewhere.
 common use case: Optimization when parsing.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string_view&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#include&lt;/span&gt; &lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;string&amp;gt;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;
@@ -1131,7 +1220,7 @@ lipo -archs &amp;lt;libname&amp;gt;.dylib
 &lt;h1 id=&#34;development-phase&#34;&gt;Development phase&lt;/h1&gt;
 &lt;p&gt;After preparing drawings and double-checking the measurements I got help from a friendly neighbour, who had all the professional tools, to cut wood. I soft grinded the wood for a smooth finish and applied &lt;a href=&#34;https://www.polyvine.be/&#34;&gt;Polyvine verniswas&lt;/a&gt; to darken the wood, which gives the old-wood-looks.&lt;/p&gt;
 &lt;p&gt;While I was shopping at a hardware store I found these thin metal interlocking connectors, which are great to mount the mirror close on to the wall. Normally, such brackets are used to mount regular mirrors on the wall. To be able to use them for my mirror I drilled some holes through the brackets and mounted them at the back of the wooden frame with some philips screws.&lt;/p&gt;
-&lt;p&gt;23 April 2019 I started and developing the frontend using TypeScript and &lt;a href=&#34;https://nuxtjs.org/&#34;&gt;Nuxt.js&lt;/a&gt;, a based Vue.js frontend framework. 
+&lt;p&gt;23 April 2019 I started and developing the frontend using TypeScript and &lt;a href=&#34;https://nuxtjs.org/&#34;&gt;Nuxt.js&lt;/a&gt;, a based Vue.js frontend framework.
 Using &lt;a href=&#34;https://dietpi.com/&#34;&gt;DietPi&lt;/a&gt; as the Linux image allowed me to easily install dependencies, do backups and receive updates with minimal effort.&lt;/p&gt;
 &lt;p&gt;To reduce the software project scope, I decided to include only the following features:&lt;/p&gt;
 &lt;ul&gt;

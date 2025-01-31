@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <meta name="author" content="Ovaar" />
+  
+  <meta name="description" content="Software Engineering blog" />
+  
+  <title>
+    
+      Deploying a Blog with GitHub Actions, Docker, and Submodules - Ovaar - Software engineering blog
+    
+  </title>
+   
+   
+   
+  
+  <link rel="stylesheet" href="/css/stylesheet.min.css" />
+  <link href="" rel="feed" type="application/rss+xml" title="Ovaar - Software engineering blog">
+  
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-173180646-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</head>
+<body>
+      <header><nav>
+  
+  <a href="https://ovaar.github.io/">Ovaar - Software engineering blog</a>
+  
+  <ul>
+    <li>
+      <a href="https://ovaar.github.io/">Home</a>
+    </li>
+    <li>
+      <a href="https://ovaar.github.io/blog/">Blog</a>
+    </li>
+	
+  </ul>
+</nav>
+</header>
+      <main>
+
+<span class="post-tags">
+  
+  #<a href="https://ovaar.github.io/tags/github-actions/">GitHub Actions</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/ci/cd/">CI/CD</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/docker/">Docker</a>&nbsp;
+  
+  #<a href="https://ovaar.github.io/tags/submodules/">Submodules</a>&nbsp;
+  
+</span>
+
+<article class="content">
+          <h2 id="-deploying-a-blog-with-github-actions-docker-and-submodules">🚀 Deploying a Blog with GitHub Actions, Docker, and Submodules&nbsp;<a class="anchor" href="#-deploying-a-blog-with-github-actions-docker-and-submodules"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<h3 id="-problem-statement">📌 Problem Statement&nbsp;<a class="anchor" href="#-problem-statement"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<p>If you’re using GitHub Actions to <strong>build and deploy a static blog</strong> that:</p>
+<ul>
+<li>Runs inside <strong>Docker</strong></li>
+<li>Pushes generated content to a <strong>GitHub Pages submodule</strong></li>
+<li>Requires <strong>Git authentication</strong> to commit and push changes</li>
+</ul>
+<p>Then, you might run into permission issues, especially when pushing to submodules.</p>
+<p>This guide walks you through setting up <strong>GitHub Actions</strong> to automatically deploy your blog <strong>without permission errors</strong>.</p>
+<hr>
+<h2 id="-step-1-set-up-a-github-personal-access-token-pat">✅ Step 1: Set Up a GitHub Personal Access Token (PAT)&nbsp;<a class="anchor" href="#-step-1-set-up-a-github-personal-access-token-pat"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>GitHub’s default <code>GITHUB_TOKEN</code> <strong>cannot push</strong> to repositories requiring extra permissions (like GitHub Pages). You need a <strong>Personal Access Token (PAT)</strong>.</p>
+<h3 id="-generate-a-pat">🔥 Generate a PAT&nbsp;<a class="anchor" href="#-generate-a-pat"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<ol>
+<li><strong>Go to GitHub Settings → Developer Settings → Personal Access Tokens → Fine-grained tokens</strong></li>
+<li>Click <strong>&ldquo;Generate new token&rdquo;</strong></li>
+<li>Set <strong>Expiration</strong>: Recommended <strong>No Expiration</strong></li>
+<li><strong>Repository access</strong>: Select <strong>both</strong> repositories (your main repo and GitHub Pages repo)</li>
+<li><strong>Permissions</strong>:
+<ul>
+<li>✅ <code>Contents: Read &amp; Write</code></li>
+<li>✅ <code>Workflows: Read &amp; Write</code></li>
+</ul>
+</li>
+<li>Click <strong>Generate Token</strong> and <strong>copy the token</strong></li>
+</ol>
+<h3 id="-add-gh_pat-to-github-secrets">🔥 Add <code>GH_PAT</code> to GitHub Secrets&nbsp;<a class="anchor" href="#-add-gh_pat-to-github-secrets"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h3>
+<ul>
+<li>Go to <strong>GitHub Repo → Settings → Secrets and Variables → Actions</strong></li>
+<li>Click <strong>New repository secret</strong></li>
+<li>Name it <strong><code>GH_PAT</code></strong></li>
+<li>Paste the copied token</li>
+</ul>
+<hr>
+<h2 id="-step-2-configure-github-actions-workflow">✅ Step 2: Configure GitHub Actions Workflow&nbsp;<a class="anchor" href="#-step-2-configure-github-actions-workflow"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>Create <code>.github/workflows/deploy.yml</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#f92672">name</span>: <span style="color:#ae81ff">Deploy Blog</span>
+
+<span style="color:#f92672">on</span>:
+  <span style="color:#f92672">push</span>:
+    <span style="color:#f92672">branches</span>:
+      - <span style="color:#ae81ff">main </span> <span style="color:#75715e"># Adjust if needed</span>
+  <span style="color:#f92672">workflow_dispatch</span>:  <span style="color:#75715e"># Allows manual triggering</span>
+
+<span style="color:#f92672">jobs</span>:
+  <span style="color:#f92672">deploy</span>:
+    <span style="color:#f92672">runs-on</span>: <span style="color:#ae81ff">ubuntu-latest</span>
+
+    <span style="color:#f92672">steps</span>:
+      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Checkout repository</span>
+        <span style="color:#f92672">uses</span>: <span style="color:#ae81ff">actions/checkout@v4</span>
+        <span style="color:#f92672">with</span>:
+          <span style="color:#f92672">submodules</span>: <span style="color:#66d9ef">true</span>  <span style="color:#75715e"># Ensures submodules are initialized and updated</span>
+          <span style="color:#f92672">fetch-depth</span>: <span style="color:#ae81ff">0</span>
+          <span style="color:#f92672">token</span>: <span style="color:#ae81ff">${{ secrets.GH_PAT }} </span> <span style="color:#75715e"># 🔥 Ensures submodules use PAT</span>
+
+      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Set execute permissions for deploy script</span>
+        <span style="color:#f92672">run</span>: <span style="color:#ae81ff">chmod +x ./scripts/deploy.sh</span>
+
+      - <span style="color:#f92672">name</span>: <span style="color:#ae81ff">Run Deploy Script</span>
+        <span style="color:#f92672">run</span>: <span style="color:#ae81ff">./scripts/deploy.sh</span>
+        <span style="color:#f92672">env</span>:
+          <span style="color:#f92672">GH_PAT</span>: <span style="color:#ae81ff">${{ secrets.GH_PAT }}</span>
+</code></pre></div><hr>
+<h2 id="-step-3-update-the-deploysh-script">✅ Step 3: Update the <code>deploy.sh</code> Script&nbsp;<a class="anchor" href="#-step-3-update-the-deploysh-script"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>Modify <code>scripts/deploy.sh</code> to <strong>properly authenticate Git</strong> before pushing:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e">#!/bin/sh
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e"># If a command fails then the deploy stops</span>
+set -e
+
+printf <span style="color:#e6db74">&#34;\033[0;32mDeploying updates to GitHub...\033[0m\n&#34;</span>
+
+<span style="color:#75715e"># Set up Git user</span>
+git config --global user.email <span style="color:#e6db74">&#34;github-actions[bot]@users.noreply.github.com&#34;</span>
+git config --global user.name <span style="color:#e6db74">&#34;github-actions[bot]&#34;</span>
+
+<span style="color:#75715e"># Update submodule URL to use authentication</span>
+git submodule foreach --recursive git remote set-url origin https://x-access-token:<span style="color:#e6db74">${</span>GH_PAT<span style="color:#e6db74">}</span>@github.com/ovaar/ovaar.github.io.git
+
+git submodule update --init --recursive
+
+<span style="color:#75715e"># Build the project.</span>
+docker-compose up blog  <span style="color:#75715e"># Adjust if needed</span>
+
+<span style="color:#75715e"># Commit and push main repo</span>
+git add .
+git commit -m <span style="color:#e6db74">&#34;Updating site </span><span style="color:#66d9ef">$(</span>date<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+git push origin master
+
+<span style="color:#75715e"># Push submodule changes</span>
+cd public
+git add .
+git commit -m <span style="color:#e6db74">&#34;Deploying blog update </span><span style="color:#66d9ef">$(</span>date<span style="color:#66d9ef">)</span><span style="color:#e6db74">&#34;</span>
+git push origin master
+</code></pre></div><hr>
+<h2 id="-step-4-push-and-test">✅ Step 4: Push and Test&nbsp;<a class="anchor" href="#-step-4-push-and-test"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<ol>
+<li><strong>Commit and push changes</strong>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">git add .
+git commit -m <span style="color:#e6db74">&#34;Set up GitHub Actions deployment&#34;</span>
+git push origin main
+</code></pre></div></li>
+<li><strong>Trigger the workflow manually</strong> (optional) from GitHub Actions.</li>
+<li><strong>Check GitHub Actions logs</strong> for errors.</li>
+</ol>
+<hr>
+<h2 id="-summary">🎯 Summary&nbsp;<a class="anchor" href="#-summary"><svg class="feather">
+  <use xlink:href="/svg/feather-sprite.svg#corner-down-left"/>
+</svg>
+</a> </h2>
+<p>✅ Use a <strong>GitHub PAT</strong> instead of <code>GITHUB_TOKEN</code> for pushing to submodules.
+✅ Pass the <strong>PAT token</strong> in <code>actions/checkout@v4</code>.
+✅ <strong>Set Git credentials</strong> in <code>deploy.sh</code>.
+✅ Update submodule <strong>remote URLs</strong> before pushing.</p>
+<p>Now, your blog should <strong>auto-deploy</strong> whenever you push changes! 🚀</p>
+<p>Need help? Drop a comment below! 😊</p>
+
+        </article>
+      </main>
+      <footer><hr>
+
+</footer>
+    </body>
+</html>

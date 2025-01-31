@@ -62,6 +62,17 @@ if (!doNotTrack) {
       <main>
         
         <article>
+          <a href="https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/">
+            <h3>Azure pipelines - ctypes importerror</h3>
+          </a>
+          <p>Fixing ctypes ImportError in Azure Pipelines: Missing _type_ Attribute When running pip install in an Azure Pipelines self-hosted agent, you might encounter the following error:
+File &#34;~\myselfhostedagent\_work\_tool\Python\3.12.3\x64\Lib\site-packages\pip\_vendor\platformdirs\windows.py&#34;, line 254, in _pick_get_win_folder import ctypes # noqa: PLC0415 ^^^^^^^^^^^^^ File &#34;ctypes\__init__.py&#34;, line 157, in &lt;module&gt; AttributeError: class must define a &#39;_type_&#39; attribute Interestingly, if you manually execute pip install using the same python.exe, it works fine. However, when executed within the Azure Pipelines agent, it fails.</p>
+          <p>
+            <small>published on Fri, 31 Jan 2025</small>
+          </p>
+        </article>
+        
+        <article>
           <a href="https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/">
             <h3>Azure pipelines cross-platform python scripting</h3>
           </a>
@@ -103,16 +114,6 @@ Let&rsquo;s take the following example where we would like to create a platform 
  The inspect module provides several useful functions to help get information about live objects such as modules, classes, methods, functions, tracebacks, frame objects, and code objects.</p>
           <p>
             <small>published on Fri, 17 Nov 2023</small>
-          </p>
-        </article>
-        
-        <article>
-          <a href="https://ovaar.github.io/blog/practical-cppstd17/">
-            <h3>Practical cppstd 17 highlights by example</h3>
-          </a>
-          <p>Practical cppstd 17 highlights by example  Language Features Library Features  Language Features Nested namespace definitions namespace A::B::C { // ... } // Rather than: namespace A { namespace B { namespace C { // ...  } } } Structured bindings #include &lt;map&gt;#include &lt;string&gt;#include &lt;iostream&gt; struct Vector3 { float X; float Y; float Z; }; using MappingPair = std::pair&lt;int, std::string&gt;; int main() { const auto [x, y, z] = Vector3{1.</p>
-          <p>
-            <small>published on Mon, 06 Mar 2023</small>
           </p>
         </article>
         
