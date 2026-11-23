@@ -1,35 +1,31 @@
 # Ovaar
 
-> Software engineering blog by Thomas Reynders, a software engineer in Leeuwarden (NL) who leads 3D product configurator work at Elfsquad. Posts are first-hand notes on C++ and Conan, Python tooling, CI pipelines, embedded Linux, 3D on the web and working with coding agents.
+> Software engineering notes by Thomas Reynders on C++ and Conan, Python tooling, CI pipelines, 3D on the web and working with coding agents. Written by Thomas Reynders, a software engineer in Leeuwarden (NL).
 
-All content is licensed CC BY-NC 4.0. Full post text is also available in the RSS feed: https://ovaar.github.io/index.xml
+All writing is licensed CC BY-NC 4.0. Full post text is also in the RSS feed: https://ovaar.github.io/index.xml
 
 ## About
 
 - [About Thomas Reynders](https://ovaar.github.io/about/): background, current work and links
 
-## C++ and Conan
+## Posts
 
-- [Conan 2.x migration and the lessons learned](https://ovaar.github.io/blog/conan-2x-migration-lessons-learned/)
-- [Build macOS Universal Binaries with Conan and CMake](https://ovaar.github.io/blog/how-to-build-macos-universal-binaries-with-conan-and-cmake/)
-- [Why std::expected matters for error handling](https://ovaar.github.io/blog/cpp-std-expected-and-std-error-code/)
-- [Practical C++17 highlights by example](https://ovaar.github.io/blog/practical-cppstd17/)
-- [std::variant: build an array of all alternatives](https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/)
-
-## Python and CI
-
-- [Running Python cross-platform in Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/)
-- [Cross-platform Bash scripts in Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/)
-- [Fix the ctypes _type_ error on Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/)
-- [GitHub Actions: deploy Hugo to a Pages submodule](https://ovaar.github.io/blog/github-actions-deploy-with-permissions/)
-- [Typed Python CLI arguments with argparse and StrEnum](https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/)
-- [Run a Python function by name from the command line](https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/)
-- [Reactive testing with Gherkin, ReactiveX and asyncio](https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/)
-- [Secure Docker login credentials with pass on Linux](https://ovaar.github.io/blog/how-to-setup-docker-credential-store/)
-
-## Embedded Linux and other
-
-- [Set a Linux MAC address from EEPROM](https://ovaar.github.io/blog/how-to-set-linux-mac-address/)
-- [An interactive Yocto shell for device provisioning](https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/)
-- [C# Performance - Profiling introduction](https://ovaar.github.io/blog/csharp-performance-profiling-introduction/)
-- [How I finally finished my DIY smart mirror](https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/)
+- [Six months of agentic coding: what actually changed](https://ovaar.github.io/blog/six-months-of-agentic-coding-what-actually-changed/): After about 500 merged PRs with coding agents: write constraints instead of code, separate builder and critic, keep PRs small, and verify like a user.
+- [Why std::expected matters for error handling](https://ovaar.github.io/blog/cpp-std-expected-and-std-error-code/): How C++23 std::expected and std::error_code work together: custom error categories, monadic chaining, and why an error category must be a single object per program.
+- [Conan 2.x migration and the lessons learned](https://ovaar.github.io/blog/conan-2x-migration-lessons-learned/): Migrating a C++ product from Conan 1 to 2: recipe and package revisions, toolchain and deps generators, the Conan API, deployers and the pitfalls I hit.
+- [Fix the ctypes _type_ error on Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-python-ctypes-importerror/): pip fails on a self-hosted Windows Azure Pipelines agent with "class must define a '_type_' attribute". Prepending Python's DLLs folder to PATH fixed it.
+- [GitHub Actions: push to a repo with a deploy key](https://ovaar.github.io/blog/github-actions-deploy-with-permissions/): Fix the 403 when a GitHub Actions workflow pushes a Hugo build to another repository: use an SSH deploy key, clone the repo fresh and push HEAD:master.
+- [Cross-platform Bash scripts in Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-cross-platform-scripts/): One Bash script for Windows, macOS and Linux Azure Pipelines agents: setting up Git for Windows bash and making a failing Bash step fail the job.
+- [Running Python cross-platform in Azure Pipelines](https://ovaar.github.io/blog/azure-pipelines-cross-platform-python-scripting/): Make python vs python3 work on Windows, macOS and Linux self-hosted Azure Pipelines agents: UsePythonVersion limits, PATH and pip, in one template.
+- [Typed Python CLI arguments with argparse and StrEnum](https://ovaar.github.io/blog/how-to-typed-command-line-arguments-in-python/): Derive argparse choices from Python types: use StrEnum and the type parameter so a build script's CLI options update when the enum changes.
+- [Run a Python function by name from the command line](https://ovaar.github.io/blog/how-to-call-function-of-file-in-python/): Call any function in a Python script from the command line with positional or keyword arguments, using globals() and inspect.signature.
+- [Practical C++17 highlights by example](https://ovaar.github.io/blog/practical-cppstd17/): Short C++17 examples: structured bindings, if constexpr, CTAD, std::variant, std::optional, string_view, filesystem and parallel algorithms.
+- [std::variant: build an array of all alternatives](https://ovaar.github.io/blog/cpp-make-variant-alternatives-array/): Use variant_size and variant_alternative with an index sequence to build a compile-time array holding one instance of each std::variant alternative.
+- [Build macOS Universal Binaries with Conan and CMake](https://ovaar.github.io/blog/how-to-build-macos-universal-binaries-with-conan-and-cmake/): Build x86_64 and arm64 macOS Universal Binaries with Conan and CMake: CMakeToolchain, Autotools, Boost, lipo and automated recipe patching.
+- [How I finally finished my DIY smart mirror](https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/): Building a smart mirror from scratch: wooden frame, spy-mirror film, a Vue.js dashboard, mounting, a bill of materials and what I'd do differently.
+- [C# Performance - Profiling introduction](https://ovaar.github.io/blog/csharp-performance-profiling-introduction/): Profiling a C# WPF inspection app: hotspots, memory allocation, microarchitecture and threading efficiency with VTune, dotTrace and Visual Studio.
+- [Reactive testing with Gherkin, ReactiveX and asyncio](https://ovaar.github.io/blog/reactive-testing-with-gherkin-reactivex-and-asyncio/): Replace time.sleep in async BDD integration tests: assert events with RxPy observables, pytest-bdd Gherkin steps and asyncio, on an MQTT example.
+- [Secure Docker login credentials with pass on Linux](https://ovaar.github.io/blog/how-to-setup-docker-credential-store/): Stop Docker storing your password unencrypted: set up docker-credential-pass with pass and a GPG key on Ubuntu, plus the macOS and Windows helpers.
+- [Set a Linux MAC address from EEPROM](https://ovaar.github.io/blog/how-to-set-linux-mac-address/): Read a MAC address from EEPROM with dd and hexdump, format it, and apply it to eth0 at runtime or permanently on an embedded Linux device.
+- [An interactive Yocto shell for device provisioning](https://ovaar.github.io/blog/how-to-create-an-interactive-yocto-shell/): An interactive Yocto shell for factory provisioning: validated MAC input, flashing swupdate, erasing NOR flash and writing EEPROM on embedded Linux.
+- [First Post](https://ovaar.github.io/blog/first-post/): Why I started a software engineering blog: writing about solutions I and colleagues built, reflecting on my career, and getting better at writing.
