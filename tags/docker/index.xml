@@ -1,111 +1,105 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Docker on Ovaar - Software engineering blog</title><link>https://ovaar.github.io/tags/docker/</link><description>Recent content in Docker on Ovaar - Software engineering blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>2020 Ovaar. This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Fri, 31 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://ovaar.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml"/><item><title>Deploying a Blog with GitHub Actions, Docker, and Submodules</title><link>https://ovaar.github.io/blog/github-actions-deploy-with-permissions/</link><pubDate>Fri, 31 Jan 2025 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/github-actions-deploy-with-permissions/</guid><description>&lt;h2 id="-deploying-a-blog-with-github-actions-docker-and-submodules"&gt;🚀 Deploying a Blog with GitHub Actions, Docker, and Submodules&lt;/h2&gt;
-&lt;h3 id="-problem-statement"&gt;📌 Problem Statement&lt;/h3&gt;
-&lt;p&gt;If you’re using GitHub Actions to &lt;strong&gt;build and deploy a static blog&lt;/strong&gt; that:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;Runs inside &lt;strong&gt;Docker&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Pushes generated content to a &lt;strong&gt;GitHub Pages submodule&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Requires &lt;strong&gt;Git authentication&lt;/strong&gt; to commit and push changes&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;Then, you might run into permission issues, especially when pushing to submodules.&lt;/p&gt;
-&lt;p&gt;This guide walks you through setting up &lt;strong&gt;GitHub Actions&lt;/strong&gt; to automatically deploy your blog &lt;strong&gt;without permission errors&lt;/strong&gt;.&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2 id="-step-1-set-up-a-github-personal-access-token-pat"&gt;✅ Step 1: Set Up a GitHub Personal Access Token (PAT)&lt;/h2&gt;
-&lt;p&gt;GitHub’s default &lt;code&gt;GITHUB_TOKEN&lt;/code&gt; &lt;strong&gt;cannot push&lt;/strong&gt; to repositories requiring extra permissions (like GitHub Pages). You need a &lt;strong&gt;Personal Access Token (PAT)&lt;/strong&gt;.&lt;/p&gt;
-&lt;h3 id="-generate-a-pat"&gt;🔥 Generate a PAT&lt;/h3&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Docker on Ovaar - Software engineering blog</title><link>https://ovaar.github.io/tags/docker/</link><description>Recent content in Docker on Ovaar - Software engineering blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>2020 Ovaar. This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Fri, 31 Jan 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://ovaar.github.io/tags/docker/index.xml" rel="self" type="application/rss+xml"/><item><title>GitHub Actions: deploy Hugo to a Pages submodule</title><link>https://ovaar.github.io/blog/github-actions-deploy-with-permissions/</link><pubDate>Fri, 31 Jan 2025 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/github-actions-deploy-with-permissions/</guid><description>&lt;p&gt;The workflow builds the blog in Docker and pushes the result into a second repository, and the push fails:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-plaintext" data-lang="plaintext"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;remote: Permission to &amp;lt;owner&amp;gt;/&amp;lt;repo&amp;gt;.git denied to github-actions[bot].
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;fatal: unable to access &amp;#39;https://github.com/&amp;lt;owner&amp;gt;/&amp;lt;repo&amp;gt;.git/&amp;#39;: The requested URL returned error: 403
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The built-in &lt;code&gt;GITHUB_TOKEN&lt;/code&gt; is only valid for the repository the workflow runs in. This blog keeps its generated site in a separate GitHub Pages repository, mounted as the &lt;code&gt;public&lt;/code&gt; submodule, so pushing there needs a token that has access to that repository. The fix has three parts: a personal access token, a checkout that uses it, and a push from inside the submodule.&lt;/p&gt;
+&lt;h2 id="1-create-a-personal-access-token"&gt;1. Create a personal access token&lt;/h2&gt;
 &lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Go to GitHub Settings → Developer Settings → Personal Access Tokens → Fine-grained tokens&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Click &lt;strong&gt;&amp;ldquo;Generate new token&amp;rdquo;&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Set &lt;strong&gt;Expiration&lt;/strong&gt;: Recommended &lt;strong&gt;No Expiration&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Repository access&lt;/strong&gt;: Select &lt;strong&gt;both&lt;/strong&gt; repositories (your main repo and GitHub Pages repo)&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Permissions&lt;/strong&gt;:
-&lt;ul&gt;
-&lt;li&gt;✅ &lt;code&gt;Contents: Read &amp;amp; Write&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;✅ &lt;code&gt;Workflows: Read &amp;amp; Write&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;Click &lt;strong&gt;Generate Token&lt;/strong&gt; and &lt;strong&gt;copy the token&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Go to GitHub Settings, Developer settings, Personal access tokens, Fine-grained tokens, and generate a new token.&lt;/li&gt;
+&lt;li&gt;Set an expiry date.&lt;/li&gt;
+&lt;li&gt;Under repository access, select only the repository you push to (the Pages repository).&lt;/li&gt;
+&lt;li&gt;Under permissions, set Contents to Read and write.&lt;/li&gt;
+&lt;li&gt;Copy the token.&lt;/li&gt;
 &lt;/ol&gt;
-&lt;h3 id="-add-gh_pat-to-github-secrets"&gt;🔥 Add &lt;code&gt;GH_PAT&lt;/code&gt; to GitHub Secrets&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;Go to &lt;strong&gt;GitHub Repo → Settings → Secrets and Variables → Actions&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Click &lt;strong&gt;New repository secret&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Name it &lt;strong&gt;&lt;code&gt;GH_PAT&lt;/code&gt;&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;Paste the copied token&lt;/li&gt;
-&lt;li&gt;Repeat steps for each submodule repository that requires access.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h2 id="-step-2-configure-github-actions-workflow"&gt;✅ Step 2: Configure GitHub Actions Workflow&lt;/h2&gt;
-&lt;p&gt;Create &lt;code&gt;.github/workflows/deploy.yml&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;Then store it as a repository secret in the repository that runs the workflow: Settings, Secrets and variables, Actions, New repository secret. The workflow below expects the name &lt;code&gt;GH_PAT&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;The token stops working on its expiry date. Put a reminder in your calendar to create a new one and update the secret.&lt;/p&gt;
+&lt;h2 id="2-check-out-with-the-token-and-configure-the-submodule"&gt;2. Check out with the token and configure the submodule&lt;/h2&gt;
+&lt;p&gt;Pass the token to &lt;code&gt;actions/checkout&lt;/code&gt; so the submodules are cloned with it. Then rewrite GitHub URLs to include the token and set a commit identity inside the &lt;code&gt;public&lt;/code&gt; submodule:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Deploy Blog&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;&lt;/span&gt;&lt;span class="nt"&gt;on&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;on&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;push&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;branches&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="l"&gt;main &lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# Adjust if needed&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;workflow_dispatch&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# Allows manual triggering&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="l"&gt;master&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;workflow_dispatch&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;&lt;/span&gt;&lt;span class="nt"&gt;jobs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;jobs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;deploy&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;runs-on&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;ubuntu-latest&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;steps&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Checkout repository&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;uses&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;actions/checkout@v4&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;uses&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;actions/checkout@v7&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;with&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;submodules&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# Ensures submodules are initialized and updated&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;submodules&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;recursive&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;fetch-depth&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;token&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;${{ secrets.GH_PAT }}&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# 🔥 Ensures submodules use PAT&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;token&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;${{ secrets.GH_PAT }}&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;persist-credentials&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Submodule cleanup fix &lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# Bodge for https://github.com/actions/checkout/issues/358&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Configure git credentials for submodule&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="sd"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git submodule foreach --recursive git clean -ffdx
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git submodule foreach --recursive git reset --hard
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git submodule foreach --recursive git checkout -f master&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git config --global url.&amp;#34;https://x-access-token:${{ secrets.GH_PAT }}@github.com/&amp;#34;.insteadOf &amp;#34;https://github.com/&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; cd public
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git config user.name &amp;#34;github-actions&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git config user.email &amp;#34;github-actions@github.com&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;url.insteadOf&lt;/code&gt; setting makes every &lt;code&gt;https://github.com/&lt;/code&gt; URL carry the token, including the submodule&amp;rsquo;s remote from &lt;code&gt;.gitmodules&lt;/code&gt;, so the later &lt;code&gt;git push&lt;/code&gt; from &lt;code&gt;public&lt;/code&gt; is authenticated.&lt;/p&gt;
+&lt;h2 id="3-build-and-push-from-the-submodule"&gt;3. Build and push from the submodule&lt;/h2&gt;
+&lt;p&gt;Run the Hugo build through &lt;code&gt;docker compose&lt;/code&gt;, then commit and push from inside &lt;code&gt;public&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-yaml" data-lang="yaml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Get UID and GID&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="sd"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; echo &amp;#34;UID=$(id -u)&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; echo &amp;#34;GID=$(id -g)&amp;#34; &amp;gt;&amp;gt; $GITHUB_ENV&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Prepare Hugo cache directory&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;mkdir -p &amp;#34;${{ runner.temp }}/hugo_cache&amp;#34;&lt;/span&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;Run docker compose&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;docker compose up blog&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;- &lt;span class="nt"&gt;uses&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;stefanzweifel/git-auto-commit-action@v5&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;with&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;repository&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;public&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;branch&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;master&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="c"&gt;# Adjust if needed&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;push_options&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;--&lt;span class="l"&gt;force&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;create_branch&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="w"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
-&lt;h2 id="-step-3-push-and-test"&gt;✅ Step 3: Push and Test&lt;/h2&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;Commit and push changes&lt;/strong&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-sh" data-lang="sh"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;git add .
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;git commit -m &lt;span class="s2"&gt;&amp;#34;Set up GitHub Actions deployment&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;git push origin main
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Trigger the workflow manually&lt;/strong&gt; (optional) from GitHub Actions.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;Check GitHub Actions logs&lt;/strong&gt; for errors.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;hr&gt;
-&lt;h2 id="-summary"&gt;🎯 Summary&lt;/h2&gt;
-&lt;p&gt;✅ Use a &lt;strong&gt;GitHub PAT&lt;/strong&gt; instead of &lt;code&gt;GITHUB_TOKEN&lt;/code&gt; for pushing to submodules.
-✅ Pass the &lt;strong&gt;PAT token&lt;/strong&gt; in &lt;code&gt;actions/checkout@v4&lt;/code&gt;.
-✅ &lt;strong&gt;Set Git credentials&lt;/strong&gt; in &lt;code&gt;deploy.sh&lt;/code&gt;.
-✅ Update submodule &lt;strong&gt;remote URLs&lt;/strong&gt; before pushing.&lt;/p&gt;
-&lt;p&gt;Now, your blog should &lt;strong&gt;auto-deploy&lt;/strong&gt; whenever you push changes! 🚀&lt;/p&gt;
-&lt;p&gt;Need help? Drop a comment below! 😊&lt;/p&gt;</description></item><item><title>How to setup docker credential-store</title><link>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</link><pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</guid><description>&lt;p&gt;Since docker version 19 it start notifying the user that the docker credentials are stored unencrypted.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;run&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="p"&gt;|&lt;/span&gt;&lt;span class="sd"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; docker compose run --rm \
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; -v &amp;#34;${{ runner.temp }}/hugo_cache:/cache&amp;#34; \
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; blog \
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; --gc \
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; --minify \
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; --noTimes
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; cd public
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git add .
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git commit -m &amp;#34;Deploy site $(date)&amp;#34; || echo &amp;#34;No changes to commit&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="sd"&gt; git push origin master&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;env&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;HUGO_CACHEDIR&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;${{ runner.temp }}/hugo_cache&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="nt"&gt;HUGO_ENVIRONMENT&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="l"&gt;production&lt;/span&gt;&lt;span class="w"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The UID and GID are exported so the container user matches the runner user and can write to the mounted directories. The &lt;code&gt;|| echo&lt;/code&gt; after &lt;code&gt;git commit&lt;/code&gt; keeps the step green when nothing changed.&lt;/p&gt;
+&lt;h2 id="summary"&gt;Summary&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;GITHUB_TOKEN&lt;/code&gt; cannot push to another repository, so use a fine-grained personal access token limited to the target repository, with Contents read and write and an expiry date, stored as a repository secret.&lt;/li&gt;
+&lt;li&gt;Pass it to &lt;code&gt;actions/checkout&lt;/code&gt; with &lt;code&gt;token:&lt;/code&gt; and &lt;code&gt;submodules: recursive&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;Rewrite &lt;code&gt;https://github.com/&lt;/code&gt; URLs with &lt;code&gt;url.insteadOf&lt;/code&gt; and set the git identity inside the submodule.&lt;/li&gt;
+&lt;li&gt;Build with &lt;code&gt;docker compose run&lt;/code&gt;, then commit and push from &lt;code&gt;public&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Secure Docker login credentials with pass on Linux</title><link>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</link><pubDate>Tue, 28 Jul 2020 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/how-to-setup-docker-credential-store/</guid><description>&lt;p&gt;Since Docker version 19, &lt;code&gt;docker login&lt;/code&gt; warns that the credentials are stored unencrypted:&lt;/p&gt;
 &lt;pre tabindex="0"&gt;&lt;code&gt;WARNING! Your password will be stored unencrypted …
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To solve this we will use the Docker &lt;a href="https://docs.docker.com/engine/reference/commandline/login/#credentials-store"&gt;credential-store&lt;/a&gt; feature.&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;To solve this, use the Docker &lt;a href="https://docs.docker.com/engine/reference/commandline/login/#credentials-store"&gt;credential-store&lt;/a&gt; feature with a credential helper:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Ubuntu: &lt;a href="https://github.com/docker/docker-credential-helpers/releases/latest"&gt;docker-credential-pass&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;OSX: osxkeychain&lt;/li&gt;
+&lt;li&gt;macOS: osxkeychain&lt;/li&gt;
 &lt;li&gt;Windows: wincred&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;In this blog post we are going to use install the latest docker-credential-pass helper in combination with pass as a store and gpg for key generation.&lt;/p&gt;
+&lt;p&gt;The steps below set up &lt;code&gt;docker-credential-pass&lt;/code&gt; on Ubuntu, with &lt;code&gt;pass&lt;/code&gt; as the store and GPG for the key.&lt;/p&gt;
+&lt;h2 id="1-install-the-helper"&gt;1. Install the helper&lt;/h2&gt;
+&lt;p&gt;The following one-liner downloads the latest &lt;code&gt;docker-credential-pass&lt;/code&gt; release from GitHub and extracts it to &lt;code&gt;~/bin&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;curl -fsSLI -o /dev/null -w %&lt;span class="o"&gt;{&lt;/span&gt;url_effective&lt;span class="o"&gt;}&lt;/span&gt; https://api.github.com/repos/docker/docker-credential-helpers/releases/latest &lt;span class="p"&gt;|&lt;/span&gt; xargs curl -s &lt;span class="p"&gt;|&lt;/span&gt; grep -o &lt;span class="s2"&gt;&amp;#34;https.*docker-credential-pass.*tar.gz&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; wget -qi - &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; mkdir -p ~/bin &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; tar -xvf docker-credential-pass-v*-amd64.tar.gz -C ~/bin
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Docker looks the helper up on your &lt;code&gt;PATH&lt;/code&gt;, so make sure &lt;code&gt;~/bin&lt;/code&gt; is on it:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;&lt;span class="nv"&gt;$HOME&lt;/span&gt;&lt;span class="s2"&gt;/bin:&lt;/span&gt;&lt;span class="nv"&gt;$PATH&lt;/span&gt;&lt;span class="s2"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Add that line to your shell profile to keep it.&lt;/p&gt;
+&lt;h2 id="2-create-a-gpg-key-and-initialize-pass"&gt;2. Create a GPG key and initialize pass&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sudo apt-get install -y pass gpg
 &lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gpg2 --gen-key
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;# copy gpg-key&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pass init &lt;span class="s2"&gt;&amp;#34;&amp;lt;gpg-pub-key&amp;gt;&amp;#34;&lt;/span&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sed -i &lt;span class="s1"&gt;&amp;#39;0,/{/s/{/{\n\t&amp;#34;credsStore&amp;#34;: &amp;#34;pass&amp;#34;,/&amp;#39;&lt;/span&gt; ~/.docker/config.json
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The following one-line will download the latest &lt;code&gt;docker-credential-pass&lt;/code&gt; helper from github and extract it to the &lt;code&gt;~/bin&lt;/code&gt; directory:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;curl -fsSLI -o /dev/null -w %&lt;span class="o"&gt;{&lt;/span&gt;url_effective&lt;span class="o"&gt;}&lt;/span&gt; https://api.github.com/repos/docker/docker-credential-helpers/releases/latest &lt;span class="p"&gt;|&lt;/span&gt; xargs curl -s &lt;span class="p"&gt;|&lt;/span&gt; grep -o &lt;span class="s2"&gt;&amp;#34;https.*docker-credential-pass.*tar.gz&amp;#34;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; wget -qi - &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; mkdir -p ~/bin &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; tar -xvf docker-credential-pass-v*-amd64.tar.gz -C ~/bin
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Finally, login with your docker credentials.&lt;/p&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gpg2 --list-secret-keys
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;pass init &lt;span class="s2"&gt;&amp;#34;&amp;lt;gpg-key-id&amp;gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Copy the key ID from the output of &lt;code&gt;--list-secret-keys&lt;/code&gt; and use it in &lt;code&gt;pass init&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id="3-tell-docker-to-use-the-helper"&gt;3. Tell Docker to use the helper&lt;/h2&gt;
+&lt;p&gt;Add &lt;code&gt;&amp;quot;credsStore&amp;quot;: &amp;quot;pass&amp;quot;&lt;/code&gt; to &lt;code&gt;~/.docker/config.json&lt;/code&gt;. This inserts it after the first &lt;code&gt;{&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sed -i &lt;span class="s1"&gt;&amp;#39;0,/{/s/{/{\n\t&amp;#34;credsStore&amp;#34;: &amp;#34;pass&amp;#34;,/&amp;#39;&lt;/span&gt; ~/.docker/config.json
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The &lt;code&gt;sed&lt;/code&gt; command needs the file to exist. If you have never used Docker on this machine, create it first with &lt;code&gt;{}&lt;/code&gt; as its content.&lt;/p&gt;
+&lt;h2 id="4-log-in"&gt;4. Log in&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker login
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description></item></channel></rss>
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The credentials are now stored encrypted in &lt;code&gt;pass&lt;/code&gt;. To check, run &lt;code&gt;docker-credential-pass list&lt;/code&gt;: after logging in it lists the registry you used.&lt;/p&gt;</description></item></channel></rss>

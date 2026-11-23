@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>DIY on Ovaar - Software engineering blog</title><link>https://ovaar.github.io/tags/diy/</link><description>Recent content in DIY on Ovaar - Software engineering blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>2020 Ovaar. This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ovaar.github.io/tags/diy/index.xml" rel="self" type="application/rss+xml"/><item><title>How a smart mirror project finished after years of work</title><link>https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/</guid><description>&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>DIY on Ovaar - Software engineering blog</title><link>https://ovaar.github.io/tags/diy/</link><description>Recent content in DIY on Ovaar - Software engineering blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>2020 Ovaar. This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Tue, 22 Feb 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://ovaar.github.io/tags/diy/index.xml" rel="self" type="application/rss+xml"/><item><title>How I finally finished my DIY smart mirror</title><link>https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/</link><pubDate>Tue, 22 Feb 2022 00:00:00 +0000</pubDate><guid>https://ovaar.github.io/blog/how-a-smart-mirror-project-finished-after-years/</guid><description>&lt;h2 id="introduction"&gt;Introduction&lt;/h2&gt;
 &lt;p&gt;Early 2019 I noticed the &lt;a href="https://magicmirror.builders/"&gt;Magic Mirror&lt;/a&gt; project. To me the way of how woodworking and technology come together really got me. I just had to build one from scratch, ofcourse. It was a great opportunity for me to build something physical and learn a few things about some fancy new JavaScript frontend framework. I decided to call it the &lt;a href="https://github.com/ovaar/mirrorm8"&gt;mirrorm8&lt;/a&gt; project. I never wrote about it until now.&lt;/p&gt;
 &lt;p&gt;Like with many ideas, our inspiration and creativity give birth to others. But as we slowly come back to earth, we realize that with the little time we have there is only so little we can do. Display the weather forecast, upcoming agenda items, voice control, gesture control, facial recognition in order to dynamically switch content per user, real-time traffic- and crypto and stocks &amp;hellip;&lt;/p&gt;
 &lt;h2 id="research-fase"&gt;Research fase&lt;/h2&gt;
 &lt;p&gt;My first thoughts were to put the mirror in the bathroom, because this is where I would see the device every day. In the morning it could give me all the information for the day. That way I know if I can take my bike to work or on a rainy day the traffic information. My girlfriend and I both value our privacy and a few ideas required image processing. A bathroom and a camera don&amp;rsquo;t go well for us, so a few ideas needed to be taken off the list. Except for one particular idea, which I really wanted to implement. I wanted to have some form of motion or proximity sensing, since I only want the mirror to be on when standing in front of it. Using a camera for motion detection was of the table and infrared (IR) wouldn&amp;rsquo;t work, since most IR waves would be blocked by the glass mirror. Bluetooth (BLE) looked like a good alternative, but this required the users to always bring their smartphone close to the mirror. Perhaps another form or sound? While looking for solutions I stumbled upon the &lt;a href="https://github.com/jdesbonnet/RCWL-0516"&gt;RCWL-0516&lt;/a&gt;, a doppler radar microwave motion sensor capable of detecting proximity within approximately a range of 5 meters distance.&lt;/p&gt;
 &lt;p&gt;I imagined the mirrors&amp;rsquo; frame to be build out of wood where the display would sink into the frame. This allows the glass to cover the entire front acting as a mirror. For the semi-transparent mirror look I choose to use a spy-mirror film over acrylic class, since it was much cheaper. A Raspberry Pi mounted at the back of the frame would run Mirrorm8 and control the display.&lt;/p&gt;
-&lt;h1 id="development-phase"&gt;Development phase&lt;/h1&gt;
-&lt;p&gt;After preparing drawings and double-checking the measurements I got help from a friendly neighbour, who had all the professional tools, to cut wood. I soft grinded the wood for a smooth finish and applied &lt;a href="https://www.polyvine.be/"&gt;Polyvine verniswas&lt;/a&gt; to darken the wood, which gives the old-wood-looks.&lt;/p&gt;
+&lt;h2 id="development-phase"&gt;Development phase&lt;/h2&gt;
+&lt;p&gt;After preparing drawings and double-checking the measurements I got help from a friendly neighbour, who had all the professional tools, to cut wood. I soft grinded the wood for a smooth finish and applied Polyvine verniswas to darken the wood, which gives the old-wood-looks.&lt;/p&gt;
 &lt;p&gt;While I was shopping at a hardware store I found these thin metal interlocking connectors, which are great to mount the mirror close on to the wall. Normally, such brackets are used to mount regular mirrors on the wall. To be able to use them for my mirror I drilled some holes through the brackets and mounted them at the back of the wooden frame with some philips screws.&lt;/p&gt;
 &lt;p&gt;23 April 2019 I started and developing the frontend using TypeScript and &lt;a href="https://nuxtjs.org/"&gt;Nuxt.js&lt;/a&gt;, a based Vue.js frontend framework.
 Using &lt;a href="https://dietpi.com/"&gt;DietPi&lt;/a&gt; as the Linux image allowed me to easily install dependencies, do backups and receive updates with minimal effort.&lt;/p&gt;
@@ -18,58 +18,41 @@ Using &lt;a href="https://dietpi.com/"&gt;DietPi&lt;/a&gt; as the Linux image al
 &lt;/ul&gt;
 &lt;p&gt;At the time Nuxt.js just recently introduced support for TypeScript, but it was a lacking documentation, examples and a stable API. It was a recipe for disaster really, but that wouldn&amp;rsquo;t stop me! The problem I faced at the time was that I wanted to integrate Socket.io with Nuxt.js in order to receive realtime updates from the backend to the frontend, but Nuxt didn&amp;rsquo;t allow me to extend the expressjs server middleware for an unknown reason. After spending countless hours, I decided to put the project on ice for a little while until the Nuxt.js TypeScript was more stable.&lt;/p&gt;
 &lt;p&gt;Just around the summer of August 2020, in my holidays, Nuxt.js released a stable version of @nuxt/typescript-runtime v1.0.0, allowing me to succesfully build the Mirrorm8 project with the desired serverMiddleware &lt;a href="https://github.com/ovaar/mirrorm8/commit/b019c94de2d44afebc33e372c523a3f1f6592fdd"&gt;b019c94&lt;/a&gt;. Finally! I rapidly finished automatically updating the weather forecast, upcoming Google Calendar items, date time and turning on/off the display dynamically using the RCWL-0516 proximity sensor afterwards.&lt;/p&gt;
-&lt;h1 id="validation-phase"&gt;Validation phase&lt;/h1&gt;
+&lt;h2 id="validation-phase"&gt;Validation phase&lt;/h2&gt;
 &lt;p&gt;Most of the developement could be done on a regular working station, but because of the Proximity sensor few functions needed to be tested on the hardware. Because mirrorm8 uses native dependencies it was easiest to be build the project on the target itself. The iterations were slow, because each time building the project took about 15 minutes. Luckly all of these steps I automated. At boot DietPi automatically starts the mirrorm8 systemd service and loads the URL with Chromium in kiosk mode. Unfortunately, my calendar items were not showing when running Mirrorm8 on the Raspberri Pi. Though, this worked just find on my work station. It turns out that Google OAuth2 is unsupported in the open-source &lt;a href="https://www.chromium.org/"&gt;Chromium&lt;/a&gt; browser. To fix it I replaced Google OAuth2 with a &lt;a href="https://docs.simplecalendar.io/google-api-key/"&gt;Google API key&lt;/a&gt; instead.&lt;/p&gt;
-&lt;h4 id="gallery"&gt;Gallery&lt;/h4&gt;
+&lt;h3 id="gallery"&gt;Gallery&lt;/h3&gt;
 &lt;p&gt;&lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG_20190609_171025_hu_218a37adf606613e.jpg 500w, https://ovaar.github.io/img/IMG_20190609_171025_hu_d23d15fff5b4cfd7.jpg 800w, https://ovaar.github.io/img/IMG_20190609_171025_hu_a76ae9e96f3ce5e4.jpg 1200w'
-src="https://ovaar.github.io/img/IMG_20190609_171025.jpg"
-alt="Mirrorm8 - Wooden frame pieces"&gt;
-&lt;figcaption&gt;Mirrorm8 - Wooden frame pieces&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG_20190609_171025_hu_fd7017fa1ccc5951.webp" srcset="https://ovaar.github.io/img/IMG_20190609_171025_hu_8d3c84bf67d21386.webp 480w, https://ovaar.github.io/img/IMG_20190609_171025_hu_97907631c1789502.webp 800w, https://ovaar.github.io/img/IMG_20190609_171025_hu_fd7017fa1ccc5951.webp 1200w, https://ovaar.github.io/img/IMG_20190609_171025_hu_a6fa708db1137234.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Wooden frame pieces" loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Wooden frame pieces&lt;/figcaption&gt;&lt;/figure&gt;
 &lt;/div&gt;
 &lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG_20190610_113928_hu_cdac4afe398f4839.jpg 500w, https://ovaar.github.io/img/IMG_20190610_113928_hu_255cc2ba86052b79.jpg 800w, https://ovaar.github.io/img/IMG_20190610_113928_hu_efe4eec747d334a2.jpg 1200w'
-src="https://ovaar.github.io/img/IMG_20190610_113928.jpg"
-alt="Mirrorm8 - Wooden frame assembled front"&gt;
-&lt;figcaption&gt;Mirrorm8 - Wooden frame assembled front&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG_20190610_113928_hu_76f051d5525567a7.webp" srcset="https://ovaar.github.io/img/IMG_20190610_113928_hu_da0d0b2128a32cfa.webp 480w, https://ovaar.github.io/img/IMG_20190610_113928_hu_ac4eda53cea616a4.webp 800w, https://ovaar.github.io/img/IMG_20190610_113928_hu_76f051d5525567a7.webp 1200w, https://ovaar.github.io/img/IMG_20190610_113928_hu_f50b89a22ccda15d.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Wooden frame assembled front" loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Wooden frame assembled front&lt;/figcaption&gt;&lt;/figure&gt;
 &lt;/div&gt;
 &lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG_20200423_225011_hu_4c0c1d297e2ecfdb.jpg 500w, https://ovaar.github.io/img/IMG_20200423_225011_hu_feb673a6b90e6f62.jpg 800w, https://ovaar.github.io/img/IMG_20200423_225011_hu_48d6d0df187cf374.jpg 1200w'
-src="https://ovaar.github.io/img/IMG_20200423_225011.jpg"
-alt="Mirrorm8 - Wooden frame assembled back"&gt;
-&lt;figcaption&gt;Mirrorm8 - Wooden frame assembled back&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG_20200423_225011_hu_e65bf03bd412612e.webp" srcset="https://ovaar.github.io/img/IMG_20200423_225011_hu_278d5955c44f5902.webp 480w, https://ovaar.github.io/img/IMG_20200423_225011_hu_93456c59edd65fd5.webp 800w, https://ovaar.github.io/img/IMG_20200423_225011_hu_e65bf03bd412612e.webp 1200w, https://ovaar.github.io/img/IMG_20200423_225011_hu_42387b01cb8a57a9.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Wooden frame assembled back" loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Wooden frame assembled back&lt;/figcaption&gt;&lt;/figure&gt;
 &lt;/div&gt;
 &lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG-20200423-WA0021_hu_4c892a417c05f68c.jpg 500w, https://ovaar.github.io/img/IMG-20200423-WA0021_hu_d05ba0d9c7080326.jpg 800w, https://ovaar.github.io/img/IMG-20200423-WA0021_hu_f7aae67068387b38.jpg 1200w'
-src="https://ovaar.github.io/img/IMG-20200423-WA0021.jpg"
-alt="Mirrorm8 - Spy film glas"&gt;
-&lt;figcaption&gt;Mirrorm8 - Spy film glas&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG-20200423-WA0021_hu_7b2c9d948a15ebfa.webp" srcset="https://ovaar.github.io/img/IMG-20200423-WA0021_hu_de5a7ba2a9adeec3.webp 480w, https://ovaar.github.io/img/IMG-20200423-WA0021_hu_354309ae0ac50737.webp 800w, https://ovaar.github.io/img/IMG-20200423-WA0021_hu_7b2c9d948a15ebfa.webp 1200w, https://ovaar.github.io/img/IMG-20200423-WA0021_hu_84190987ece44984.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Spy film glas" loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Spy film glas&lt;/figcaption&gt;&lt;/figure&gt;
 &lt;/div&gt;
 &lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG_20200720_190254_hu_4e06de0b25cc831b.jpg 500w, https://ovaar.github.io/img/IMG_20200720_190254_hu_9b0d160ac56b61ab.jpg 800w, https://ovaar.github.io/img/IMG_20200720_190254_hu_d7258e0679141391.jpg 1200w'
-src="https://ovaar.github.io/img/IMG_20200720_190254.jpg"
-alt="Mirrorm8 - Chromium restore pages"&gt;
-&lt;figcaption&gt;Mirrorm8 - Chromium restore pages&lt;/figcaption&gt;&lt;/figure&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG_20200720_190254_hu_f2b87ecc2ea9d0b9.webp" srcset="https://ovaar.github.io/img/IMG_20200720_190254_hu_e64856c10467a446.webp 480w, https://ovaar.github.io/img/IMG_20200720_190254_hu_a846d5904a016e8a.webp 800w, https://ovaar.github.io/img/IMG_20200720_190254_hu_f2b87ecc2ea9d0b9.webp 1200w, https://ovaar.github.io/img/IMG_20200720_190254_hu_e4ec4676aa29da56.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Chromium restore pages" loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Chromium restore pages&lt;/figcaption&gt;&lt;/figure&gt;
 &lt;/div&gt;
 &lt;div class="center"&gt;
-&lt;figure&gt;
-&lt;img sizes="(min-width: 35em) 720px, 100vw"
-srcset='https://ovaar.github.io/img/IMG_20211228_141034_hu_edbf4bf0dddeef18.jpg 500w, https://ovaar.github.io/img/IMG_20211228_141034_hu_4035afe86f6b0ee6.jpg 800w, https://ovaar.github.io/img/IMG_20211228_141034_hu_12ab99a1aedb5bb.jpg 1200w'
-src="https://ovaar.github.io/img/IMG_20211228_141034.jpg"
-alt="Mirrorm8 - Fully assembled "&gt;
-&lt;figcaption&gt;Mirrorm8 - Fully assembled &lt;/figcaption&gt;&lt;/figure&gt;
-&lt;/div&gt;&lt;/p&gt;
-&lt;h4 id="bill-of-material"&gt;Bill of material&lt;/h4&gt;
+&lt;figure&gt;&lt;img src="https://ovaar.github.io/img/IMG_20211228_141034_hu_bf8c8d2ec40a8ff9.webp" srcset="https://ovaar.github.io/img/IMG_20211228_141034_hu_7ed153bffa41eb8e.webp 480w, https://ovaar.github.io/img/IMG_20211228_141034_hu_4fbfa11c12473975.webp 800w, https://ovaar.github.io/img/IMG_20211228_141034_hu_bf8c8d2ec40a8ff9.webp 1200w, https://ovaar.github.io/img/IMG_20211228_141034_hu_dfca33788c8402f8.webp 1600w"
+sizes="(min-width: 760px) 720px, 100vw"
+width="1200" height="675" alt="Mirrorm8 - Fully assembled " loading="lazy" decoding="async"&gt;&lt;figcaption&gt;Mirrorm8 - Fully assembled &lt;/figcaption&gt;&lt;/figure&gt;
+&lt;/div&gt;
+&lt;/p&gt;
+&lt;h3 id="bill-of-material"&gt;Bill of material&lt;/h3&gt;
 &lt;table&gt;
 &lt;thead&gt;
 &lt;tr&gt;
